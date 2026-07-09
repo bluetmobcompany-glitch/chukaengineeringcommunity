@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop — Chuka Engineering Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blueprint-navy: #10243E;
+    --blueprint-blue: #2E6F9E;
+    --blueprint-line: #4C86AE;
+    --paper: #E8EEF2;
+    --copper: #C97B3D;
+    --ink: #0B1B2B;
+    --ok: #3F8F5F;
+    --err: #B4453A;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background:
+      repeating-linear-gradient(0deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      var(--blueprint-navy);
+    color: var(--paper);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  a { color: inherit; }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(16,36,62,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(232,238,242,0.15);
+  }
+
+  .brandmark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .brandmark .glyph {
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--copper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--copper);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .brandmark .glyph span { transform: rotate(-45deg); }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 22px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  nav a {
+    text-decoration: none;
+    opacity: 0.75;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: opacity 0.15s ease, border-color 0.15s ease;
+  }
+  nav a:hover, nav a:focus-visible { opacity: 1; border-color: var(--copper); }
+  nav a.current { opacity: 1; border-color: var(--copper); }
+
+  @media (max-width: 900px) { nav ul { display: none; } }
+
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 32px 80px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  h1 em { font-style: normal; color: var(--copper); }
+
+  p.lede {
+    max-width: 60ch;
+    color: rgba(232,238,242,0.8);
+    margin-bottom: 36px;
+  }
+
+  /* ---------- CONTROLS ---------- */
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-end;
+    margin-bottom: 8px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(232,238,242,0.2);
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .control-group .label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+  }
+
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(232,238,242,0.35);
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .pill:hover { border-color: var(--copper); }
+  .pill[aria-pressed="true"] {
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    border-color: var(--copper);
+    font-weight: 600;
+  }
+  .pill:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
+
+  .sheet-status {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.6);
+    margin: 28px 0 24px;
+    min-height: 1.2em;
+  }
+  .sheet-status[data-state="err"] { color: var(--err); }
+
+  /* ---------- PRODUCT GRID ---------- */
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1px;
+    background: rgba(232,238,242,0.25);
+    border: 1px solid rgba(232,238,242,0.25);
+  }
+
+  .product-card {
+    background: var(--blueprint-navy);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .product-photo {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 1px solid rgba(232,238,242,0.25);
+    background: rgba(232,238,242,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: rgba(232,238,242,0.4);
+    overflow: hidden;
+  }
+  .product-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+  .product-tag {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--copper);
+  }
+
+  .product-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .product-desc {
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.7);
+    flex-grow: 1;
+  }
+
+  .product-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(232,238,242,0.15);
+  }
+
+  .product-price {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .stock-badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .stock-badge.in { color: var(--ok); }
+  .stock-badge.low { color: var(--copper); }
+  .stock-badge.out { color: var(--err); }
+
+  button.add-cart {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(232,238,242,0.35);
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  button.add-cart:hover:not(:disabled) { border-color: var(--copper); background: rgba(201,123,61,0.12); }
+  button.add-cart:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .empty-products {
+    grid-column: 1 / -1;
+    padding: 40px 16px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.5);
+    background: var(--blueprint-navy);
+  }
+
+  /* ---------- CART ---------- */
+
+  .cart-panel {
+    margin-top: 56px;
+    border: 1px solid rgba(232,238,242,0.3);
+    background: rgba(232,238,242,0.04);
+  }
+
+  .cart-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(232,238,242,0.2);
+  }
+
+  .cart-head h2 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .cart-count {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--blueprint-line);
+  }
+
+  .cart-items { padding: 8px 24px; }
+
+  .cart-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(232,238,242,0.12);
+    font-size: 0.9rem;
+  }
+  .cart-row:last-child { border-bottom: none; }
+
+  .cart-row .name { font-weight: 500; }
+  .cart-row .unit-price { font-family: var(--font-mono); color: rgba(232,238,242,0.6); font-size: 0.82rem; }
+
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+  }
+  .qty-control button {
+    width: 26px;
+    height: 26px;
+    background: transparent;
+    border: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .qty-control button:hover { border-color: var(--copper); }
+
+  .cart-row .line-total { font-family: var(--font-mono); font-weight: 600; text-align: right; min-width: 80px; }
+
+  .cart-remove {
+    background: none;
+    border: none;
+    color: var(--err);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .cart-empty {
+    padding: 24px 0;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.5);
+  }
+
+  .cart-summary {
+    padding: 20px 24px;
+    border-top: 1px solid rgba(232,238,242,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .cart-total {
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+  }
+  .cart-total strong { color: var(--copper); }
+
+  /* ---------- CHECKOUT ---------- */
+
+  .checkout-panel {
+    display: none;
+    padding: 24px;
+    border-top: 1px solid rgba(232,238,242,0.2);
+  }
+  .checkout-panel.open { display: block; }
+
+  .checkout-panel h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-grid label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 6px;
+  }
+
+  .form-grid input, .form-grid select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 6px 2px;
+    outline: none;
+  }
+  .form-grid input:focus, .form-grid select:focus { border-color: var(--copper); }
+  .form-grid select option { background: var(--blueprint-navy); }
+
+  .checkout-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+  button.commit {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button.commit:hover { filter: brightness(1.1); }
+  button.commit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  #checkout-status {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    min-height: 1.2em;
+  }
+  #checkout-status[data-state="ok"] { color: var(--ok); }
+  #checkout-status[data-state="err"] { color: var(--err); }
+
+  .payment-note {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: rgba(232,238,242,0.6);
+    margin-top: 4px;
+  }
+
+  footer {
+    border-top: 1px solid rgba(232,238,242,0.2);
+    padding: 32px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: rgba(232,238,242,0.55);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brandmark">
+    <span class="glyph"><span>CE</span></span>
+    CHUKA ENGINEERING COMMUNITY
+  </a>
+  <nav>
+    <ul>
+      <li><a href="index.html#register">Register</a></li>
+      <li><a href="timetables.html">Timetables</a></li>
+      <li><a href="personnel.html">Personnel</a></li>
+      <li><a href="sports.html">Sports</a></li>
+      <li><a href="club.html">Club</a></li>
+      <li><a href="shop.html" class="current">Shop</a></li>
+      <li><a href="documents.html">Documents</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <p class="eyebrow">Sheet 06 — Shop</p>
+  <h1>Notes, papers &amp; <em>components</em></h1>
+  <p class="lede">Revision papers, class notes and electronics components, stocked and priced straight from the community's inventory sheet. Add what you need, then check out with M-Pesa.</p>
+
+  <div class="controls">
+    <div class="control-group">
+      <span class="label">Category</span>
+      <div class="pill-row" id="categoryPills">
+        <button class="pill" data-cat="all" aria-pressed="true">All</button>
+        <button class="pill" data-cat="Notes">Notes</button>
+        <button class="pill" data-cat="Revision Papers">Revision Papers</button>
+        <button class="pill" data-cat="Electronics Component">Electronics</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="sheet-status" id="sheetStatus" role="status" aria-live="polite">Loading inventory…</p>
+
+  <div class="product-grid" id="productGrid">
+    <div class="empty-products">Loading…</div>
+  </div>
+
+  <div class="cart-panel">
+    <div class="cart-head">
+      <h2>Cart</h2>
+      <span class="cart-count" id="cartCount">0 items</span>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">Your cart is empty — add something from the shelf above.</div>
+    </div>
+
+    <div class="cart-summary">
+      <div class="cart-total">Total: <strong id="cartTotal">KES 0</strong></div>
+      <button class="commit" id="checkoutToggle" disabled>Checkout</button>
+    </div>
+
+    <div class="checkout-panel" id="checkoutPanel">
+      <h3>Buyer details</h3>
+      <div class="form-grid">
+        <div>
+          <label for="buyerName">Full name</label>
+          <input type="text" id="buyerName" autocomplete="name">
+        </div>
+        <div>
+          <label for="buyerPhone">Phone number</label>
+          <input type="tel" id="buyerPhone" autocomplete="tel" placeholder="For M-Pesa prompt">
+        </div>
+        <div>
+          <label for="buyerEmail">Email (optional)</label>
+          <input type="email" id="buyerEmail" autocomplete="email">
+        </div>
+        <div>
+          <label for="paymentMethod">Payment method</label>
+          <select id="paymentMethod">
+            <option>M-Pesa</option>
+            <option>Cash</option>
+            <option>PayPal</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <p class="payment-note">Placing an order records it as <em>Pending</em>. For M-Pesa, you'll be contacted with the till/paybill number to complete payment.</p>
+      <div class="checkout-row" style="margin-top:16px;">
+        <button class="commit" id="placeOrderBtn">Place order</button>
+        <span id="checkout-status" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>Chuka Engineering Community — student-run, sheet-backed.</footer>
+
+<script>
+  // Same Apps Script Web App URL used across every page.
+  const WEB_APP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+  let inventory = [];
+  let activeCategory = 'all';
+  const cart = new Map(); // itemId -> { item, qty }
+
+  const sheetStatus = document.getElementById('sheetStatus');
+  const productGrid = document.getElementById('productGrid');
+  const cartItems = document.getElementById('cartItems');
+  const cartCount = document.getElementById('cartCount');
+  const cartTotal = document.getElementById('cartTotal');
+  const checkoutToggle = document.getElementById('checkoutToggle');
+  const checkoutPanel = document.getElementById('checkoutPanel');
+
+  document.querySelectorAll('#categoryPills .pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#categoryPills .pill').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      activeCategory = btn.dataset.cat;
+      renderProducts();
+    });
+  });
+
+  async function loadInventory() {
+    setStatus('Loading…', '');
+    try {
+      const res = await fetch(`${WEB_APP_URL}?action=getShopInventory`);
+      const result = await res.json();
+      if (!result.success) { setStatus(result.error || 'Could not load inventory.', 'err'); return; }
+      inventory = result.data.filter(r => r['Status'] !== 'Out of Stock' || true); // keep all, badge shows stock
+      setStatus(`${inventory.length} item${inventory.length === 1 ? '' : 's'} in the shop.`, '');
+      renderProducts();
+    } catch (err) {
+      setStatus('Network error — check the Web App URL is set.', 'err');
+    }
+  }
+
+  function renderProducts() {
+    const rows = activeCategory === 'all' ? inventory : inventory.filter(r => r['Category'] === activeCategory);
+
+    if (!rows.length) {
+      productGrid.innerHTML = `<div class="empty-products">Nothing listed in this category yet.</div>`;
+      return;
+    }
+
+    productGrid.innerHTML = rows.map(r => {
+      const id = r['Item ID'];
+      const stock = Number(r['Stock Quantity']) || 0;
+      const statusLabel = r['Status'] || (stock > 5 ? 'In Stock' : stock > 0 ? 'Low Stock' : 'Out of Stock');
+      const badgeClass = statusLabel === 'Out of Stock' ? 'out' : statusLabel === 'Low Stock' ? 'low' : 'in';
+      const disabled = statusLabel === 'Out of Stock' ? 'disabled' : '';
+      const photo = r['Image URL']
+        ? `<img src="${escapeAttr(r['Image URL'])}" alt="${escapeHtml(r['Item Name'])}">`
+        : 'No image';
+
+      return `
+        <div class="product-card">
+          <div class="product-photo">${photo}</div>
+          <div class="product-tag">${escapeHtml(r['Category'])}${r['Related Year (if notes)'] ? ' · ' + escapeHtml(r['Related Year (if notes)']) : ''}</div>
+          <h3>${escapeHtml(r['Item Name'])}</h3>
+          <div class="product-desc">${escapeHtml(r['Description'])}</div>
+          <div class="product-foot">
+            <div>
+              <div class="product-price">KES ${escapeHtml(r['Price (KES)'])}</div>
+              <div class="stock-badge ${badgeClass}">${escapeHtml(statusLabel)}</div>
+            </div>
+            <button class="add-cart" data-id="${escapeAttr(id)}" ${disabled}>Add</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    productGrid.querySelectorAll('.add-cart').forEach(btn => {
+      btn.addEventListener('click', () => addToCart(btn.dataset.id));
+    });
+  }
+
+  function addToCart(itemId) {
+    const item = inventory.find(r => String(r['Item ID']) === String(itemId));
+    if (!item) return;
+    const existing = cart.get(itemId);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.set(itemId, { item, qty: 1 });
+    }
+    renderCart();
+  }
+
+  function changeQty(itemId, delta) {
+    const entry = cart.get(itemId);
+    if (!entry) return;
+    entry.qty += delta;
+    if (entry.qty <= 0) cart.delete(itemId);
+    renderCart();
+  }
+
+  function removeFromCart(itemId) {
+    cart.delete(itemId);
+    renderCart();
+  }
+
+  function renderCart() {
+    if (cart.size === 0) {
+      cartItems.innerHTML = `<div class="cart-empty">Your cart is empty — add something from the shelf above.</div>`;
+      cartCount.textContent = '0 items';
+      cartTotal.textContent = 'KES 0';
+      checkoutToggle.disabled = true;
+      checkoutPanel.classList.remove('open');
+      return;
+    }
+
+    let total = 0;
+    let count = 0;
+
+    cartItems.innerHTML = Array.from(cart.entries()).map(([id, { item, qty }]) => {
+      const price = Number(item['Price (KES)']) || 0;
+      const lineTotal = price * qty;
+      total += lineTotal;
+      count += qty;
+
+      return `
+        <div class="cart-row">
+          <div>
+            <div class="name">${escapeHtml(item['Item Name'])}</div>
+            <div class="unit-price">KES ${price} each</div>
+          </div>
+          <div class="qty-control">
+            <button data-action="dec" data-id="${escapeAttr(id)}">−</button>
+            <span>${qty}</span>
+            <button data-action="inc" data-id="${escapeAttr(id)}">+</button>
+          </div>
+          <div class="line-total">KES ${lineTotal}</div>
+          <button class="cart-remove" data-action="remove" data-id="${escapeAttr(id)}">Remove</button>
+        </div>
+      `;
+    }).join('');
+
+    cartCount.textContent = `${count} item${count === 1 ? '' : 's'}`;
+    cartTotal.textContent = `KES ${total}`;
+    checkoutToggle.disabled = false;
+
+    cartItems.querySelectorAll('[data-action="inc"]').forEach(b => b.addEventListener('click', () => changeQty(b.dataset.id, 1)));
+    cartItems.querySelectorAll('[data-action="dec"]').forEach(b => b.addEventListener('click', () => changeQty(b.dataset.id, -1)));
+    cartItems.querySelectorAll('[data-action="remove"]').forEach(b => b.addEventListener('click', () => removeFromCart(b.dataset.id)));
+  }
+
+  checkoutToggle.addEventListener('click', () => checkoutPanel.classList.toggle('open'));
+
+  document.getElementById('placeOrderBtn').addEventListener('click', async () => {
+    const checkoutStatus = document.getElementById('checkout-status');
+    const buyerName = document.getElementById('buyerName').value.trim();
+    const buyerPhone = document.getElementById('buyerPhone').value.trim();
+    const buyerEmail = document.getElementById('buyerEmail').value.trim();
+    const paymentMethod = document.getElementById('paymentMethod').value;
+
+    if (!buyerName || !buyerPhone) {
+      checkoutStatus.textContent = 'Name and phone number are required.';
+      checkoutStatus.setAttribute('data-state', 'err');
+      return;
+    }
+    if (cart.size === 0) {
+      checkoutStatus.textContent = 'Your cart is empty.';
+      checkoutStatus.setAttribute('data-state', 'err');
+      return;
+    }
+
+    const itemsSummary = Array.from(cart.values()).map(({ item, qty }) => `${item['Item Name']} x${qty}`).join('; ');
+    const total = Array.from(cart.values()).reduce((sum, { item, qty }) => sum + (Number(item['Price (KES)']) || 0) * qty, 0);
+    const quantity = Array.from(cart.values()).reduce((sum, { qty }) => sum + qty, 0);
+
+    checkoutStatus.textContent = 'Placing order…';
+    checkoutStatus.removeAttribute('data-state');
+
+    try {
+      const res = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'placeOrder',
+          data: { buyerName, buyerPhone, buyerEmail, items: itemsSummary, quantity, total, paymentMethod }
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        checkoutStatus.textContent = `Order placed (${result.orderId}). You'll be contacted to complete payment.`;
+        checkoutStatus.setAttribute('data-state', 'ok');
+        cart.clear();
+        renderCart();
+        ['buyerName', 'buyerPhone', 'buyerEmail'].forEach(id => document.getElementById(id).value = '');
+      } else {
+        checkoutStatus.textContent = result.error || 'Could not place order.';
+        checkoutStatus.setAttribute('data-state', 'err');
+      }
+    } catch (err) {
+      checkoutStatus.textContent = 'Network error — check the Web App URL is set.';
+      checkoutStatus.setAttribute('data-state', 'err');
+    }
+  });
+
+  function escapeHtml(v) {
+    if (v === undefined || v === null) return '';
+    return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(v) { return escapeHtml(v); }
+
+  function setStatus(msg, state) {
+    sheetStatus.textContent = msg;
+    if (state) sheetStatus.setAttribute('data-state', state); else sheetStatus.removeAttribute('data-state');
+  }
+
+  loadInventory();
+</script>
+
+</body>
+</html>
