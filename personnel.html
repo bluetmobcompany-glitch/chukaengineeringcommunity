@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class Personnel — Chuka Engineering Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blueprint-navy: #10243E;
+    --blueprint-blue: #2E6F9E;
+    --blueprint-line: #4C86AE;
+    --paper: #E8EEF2;
+    --copper: #C97B3D;
+    --ink: #0B1B2B;
+    --ok: #3F8F5F;
+    --err: #B4453A;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background:
+      repeating-linear-gradient(0deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      var(--blueprint-navy);
+    color: var(--paper);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  a { color: inherit; }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(16,36,62,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(232,238,242,0.15);
+  }
+
+  .brandmark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .brandmark .glyph {
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--copper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--copper);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .brandmark .glyph span { transform: rotate(-45deg); }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 28px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  nav a {
+    text-decoration: none;
+    opacity: 0.75;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: opacity 0.15s ease, border-color 0.15s ease;
+  }
+  nav a:hover, nav a:focus-visible { opacity: 1; border-color: var(--copper); }
+  nav a.current { opacity: 1; border-color: var(--copper); }
+
+  @media (max-width: 820px) { nav ul { display: none; } }
+
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 32px 80px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  h1 em { font-style: normal; color: var(--copper); }
+
+  p.lede {
+    max-width: 60ch;
+    color: rgba(232,238,242,0.8);
+    margin-bottom: 36px;
+  }
+
+  .controls {
+    margin-bottom: 8px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(232,238,242,0.2);
+  }
+
+  .control-group .label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(232,238,242,0.35);
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .pill:hover { border-color: var(--copper); }
+  .pill[aria-pressed="true"] {
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    border-color: var(--copper);
+    font-weight: 600;
+  }
+  .pill:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
+
+  .sheet-status {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.6);
+    margin: 28px 0 24px;
+    min-height: 1.2em;
+  }
+  .sheet-status[data-state="err"] { color: var(--err); }
+
+  /* ---------- PERSONNEL CARDS ---------- */
+
+  .roster {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1px;
+    background: rgba(232,238,242,0.25);
+    border: 1px solid rgba(232,238,242,0.25);
+  }
+
+  .roster-card {
+    background: var(--blueprint-navy);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .roster-photo {
+    width: 56px;
+    height: 56px;
+    border: 1px solid rgba(232,238,242,0.35);
+    background: rgba(232,238,242,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--copper);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .roster-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+  .roster-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .roster-role {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--copper);
+  }
+
+  .roster-contact {
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.7);
+    word-break: break-word;
+  }
+
+  .empty-roster {
+    grid-column: 1 / -1;
+    padding: 40px 16px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.5);
+    background: var(--blueprint-navy);
+  }
+
+  /* ---------- ADMIN PANEL ---------- */
+
+  .admin-toggle {
+    margin-top: 56px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--blueprint-line);
+    border: 1px solid rgba(232,238,242,0.3);
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+  .admin-toggle:hover { border-color: var(--copper); color: var(--paper); }
+
+  .admin-panel {
+    display: none;
+    margin-top: 20px;
+    border: 1px solid rgba(232,238,242,0.3);
+    background: rgba(232,238,242,0.04);
+    padding: 24px;
+  }
+  .admin-panel.open { display: block; }
+
+  .admin-panel h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-grid label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 6px;
+  }
+
+  .form-grid input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 6px 2px;
+    outline: none;
+  }
+  .form-grid input:focus { border-color: var(--copper); }
+
+  .admin-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+  button.commit {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button.commit:hover { filter: brightness(1.1); }
+  button.commit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  #admin-status, #entry-status {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    min-height: 1.2em;
+  }
+  #admin-status[data-state="ok"], #entry-status[data-state="ok"] { color: var(--ok); }
+  #admin-status[data-state="err"], #entry-status[data-state="err"] { color: var(--err); }
+
+  .locked-note {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: rgba(232,238,242,0.6);
+  }
+
+  footer {
+    border-top: 1px solid rgba(232,238,242,0.2);
+    padding: 32px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: rgba(232,238,242,0.55);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brandmark">
+    <span class="glyph"><span>CE</span></span>
+    CHUKA ENGINEERING COMMUNITY
+  </a>
+  <nav>
+    <ul>
+      <li><a href="index.html#register">Register</a></li>
+      <li><a href="timetables.html">Timetables</a></li>
+      <li><a href="personnel.html" class="current">Personnel</a></li>
+      <li><a href="club.html">Club</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="documents.html">Documents</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <p class="eyebrow">Sheet 03 — Leadership</p>
+  <h1>Class <em>personnel</em></h1>
+  <p class="lede">Reps, chairpersons and committee members for each cohort. Pick a year to see who to go to.</p>
+
+  <div class="controls">
+    <div class="control-group">
+      <span class="label">Year of study</span>
+      <div class="pill-row" id="yearPills">
+        <button class="pill" data-year="1st Year">1st Year</button>
+        <button class="pill" data-year="2nd Year">2nd Year</button>
+        <button class="pill" data-year="3rd Year">3rd Year</button>
+        <button class="pill" data-year="4th Year">4th Year</button>
+        <button class="pill" data-year="5th Year">5th Year</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="sheet-status" id="sheetStatus" role="status" aria-live="polite">Select a year to load its leadership roster.</p>
+
+  <div class="roster" id="roster">
+    <div class="empty-roster">No year selected yet.</div>
+  </div>
+
+  <button class="admin-toggle" id="adminToggle">Class admin: add a personnel entry</button>
+
+  <div class="admin-panel" id="adminPanel">
+    <h3>Admin sign-in</h3>
+    <p class="locked-note" style="margin-bottom:16px;">Sign in with your class admin username and password.</p>
+    <div class="form-grid">
+      <div>
+        <label for="adminUser">Username</label>
+        <input type="text" id="adminUser" autocomplete="username">
+      </div>
+      <div>
+        <label for="adminPass">Password</label>
+        <input type="password" id="adminPass" autocomplete="current-password">
+      </div>
+    </div>
+    <div class="admin-row">
+      <button class="commit" id="adminLoginBtn">Sign in</button>
+      <span id="admin-status" role="status" aria-live="polite"></span>
+    </div>
+
+    <div id="entryForm" style="display:none; margin-top:28px; border-top:1px solid rgba(232,238,242,0.2); padding-top:24px;">
+      <h3>Add a personnel entry</h3>
+      <div class="form-grid">
+        <div>
+          <label for="e_name">Full name</label>
+          <input type="text" id="e_name">
+        </div>
+        <div>
+          <label for="e_role">Role / position</label>
+          <input type="text" id="e_role" placeholder="Class Rep, Chairperson…">
+        </div>
+        <div>
+          <label for="e_phone">Phone number</label>
+          <input type="text" id="e_phone">
+        </div>
+        <div>
+          <label for="e_email">Email</label>
+          <input type="email" id="e_email">
+        </div>
+        <div>
+          <label for="e_photo">Photo URL (optional)</label>
+          <input type="url" id="e_photo" placeholder="https://…">
+        </div>
+      </div>
+      <div class="admin-row">
+        <button class="commit" id="submitEntryBtn">Add to roster</button>
+        <span id="entry-status" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>Chuka Engineering Community — student-run, sheet-backed.</footer>
+
+<script>
+  const WEB_APP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+  let selectedYear = null;
+  let loggedInAdmin = null;
+
+  const sheetStatus = document.getElementById('sheetStatus');
+  const roster = document.getElementById('roster');
+
+  document.querySelectorAll('#yearPills .pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#yearPills .pill').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      selectedYear = btn.dataset.year;
+      loadRoster();
+    });
+  });
+
+  async function loadRoster() {
+    if (!selectedYear) return;
+    setStatus('Loading…', '');
+
+    try {
+      const res = await fetch(`${WEB_APP_URL}?action=getPersonnel&year=${encodeURIComponent(selectedYear)}`);
+      const result = await res.json();
+      if (!result.success) { setStatus(result.error || 'Could not load roster.', 'err'); return; }
+      renderRoster(result.data);
+      setStatus(result.data.length ? `${result.data.length} member${result.data.length === 1 ? '' : 's'} for ${selectedYear}.` : `No personnel listed yet for ${selectedYear}.`, '');
+    } catch (err) {
+      setStatus('Network error — check the Web App URL is set.', 'err');
+    }
+  }
+
+  function renderRoster(rows) {
+    if (!rows.length) {
+      roster.innerHTML = `<div class="empty-roster">Nobody listed for this year yet — check back soon.</div>`;
+      return;
+    }
+
+    roster.innerHTML = rows.map(r => {
+      const name = escapeHtml(r['Full Name']);
+      const initials = String(r['Full Name'] || '').split(' ').filter(Boolean).slice(0,2).map(w => w[0].toUpperCase()).join('');
+      const photo = r['Photo URL'] ? `<img src="${escapeAttr(r['Photo URL'])}" alt="${name}">` : initials;
+      return `
+        <div class="roster-card">
+          <div class="roster-photo">${photo}</div>
+          <h3>${name}</h3>
+          <div class="roster-role">${escapeHtml(r['Role/Position'])}</div>
+          <div class="roster-contact">${escapeHtml(r['Email'])}</div>
+          <div class="roster-contact">${escapeHtml(r['Phone Number'])}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(v) {
+    if (v === undefined || v === null) return '';
+    return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(v) { return escapeHtml(v); }
+
+  function setStatus(msg, state) {
+    sheetStatus.textContent = msg;
+    if (state) sheetStatus.setAttribute('data-state', state); else sheetStatus.removeAttribute('data-state');
+  }
+
+  // ---------- ADMIN PANEL ----------
+
+  const adminToggle = document.getElementById('adminToggle');
+  const adminPanel = document.getElementById('adminPanel');
+  adminToggle.addEventListener('click', () => adminPanel.classList.toggle('open'));
+
+  async function sha256(text) {
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+    const username = document.getElementById('adminUser').value.trim();
+    const password = document.getElementById('adminPass').value;
+    const adminStatus = document.getElementById('admin-status');
+
+    if (!username || !password) { adminStatus.textContent = 'Enter both fields.'; adminStatus.setAttribute('data-state','err'); return; }
+
+    adminStatus.textContent = 'Checking…'; adminStatus.removeAttribute('data-state');
+    const passwordHash = await sha256(password);
+
+    try {
+      const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'adminLogin', data: { username, passwordHash } }) });
+      const result = await res.json();
+      if (result.success) {
+        loggedInAdmin = { username, passwordHash, section: result.admin.section };
+        adminStatus.textContent = `Signed in as ${result.admin.name || username} (${result.admin.section}).`;
+        adminStatus.setAttribute('data-state', 'ok');
+        document.getElementById('entryForm').style.display = 'block';
+      } else {
+        adminStatus.textContent = result.error || 'Sign-in failed.';
+        adminStatus.setAttribute('data-state', 'err');
+      }
+    } catch (err) {
+      adminStatus.textContent = 'Network error — check the Web App URL is set.';
+      adminStatus.setAttribute('data-state', 'err');
+    }
+  });
+
+  document.getElementById('submitEntryBtn').addEventListener('click', async () => {
+    const entryStatus = document.getElementById('entry-status');
+    if (!loggedInAdmin) { entryStatus.textContent = 'Sign in first.'; entryStatus.setAttribute('data-state','err'); return; }
+    if (!selectedYear) { entryStatus.textContent = 'Pick a year above first.'; entryStatus.setAttribute('data-state','err'); return; }
+
+    const data = {
+      username: loggedInAdmin.username,
+      passwordHash: loggedInAdmin.passwordHash,
+      yearOfStudy: selectedYear,
+      fullName: document.getElementById('e_name').value.trim(),
+      rolePosition: document.getElementById('e_role').value.trim(),
+      phoneNumber: document.getElementById('e_phone').value.trim(),
+      email: document.getElementById('e_email').value.trim(),
+      photoUrl: document.getElementById('e_photo').value.trim()
+    };
+
+    entryStatus.textContent = 'Saving…'; entryStatus.removeAttribute('data-state');
+
+    try {
+      const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'addPersonnel', data }) });
+      const result = await res.json();
+      if (result.success) {
+        entryStatus.textContent = 'Added to roster.'; entryStatus.setAttribute('data-state', 'ok');
+        ['e_name','e_role','e_phone','e_email','e_photo'].forEach(id => document.getElementById(id).value = '');
+        loadRoster();
+      } else {
+        entryStatus.textContent = result.error || 'Could not save entry.'; entryStatus.setAttribute('data-state', 'err');
+      }
+    } catch (err) {
+      entryStatus.textContent = 'Network error — check the Web App URL is set.'; entryStatus.setAttribute('data-state', 'err');
+    }
+  });
+</script>
+
+</body>
+</html>
