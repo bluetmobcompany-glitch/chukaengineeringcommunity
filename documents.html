@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documents — Chuka Engineering Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blueprint-navy: #10243E;
+    --blueprint-blue: #2E6F9E;
+    --blueprint-line: #4C86AE;
+    --paper: #E8EEF2;
+    --copper: #C97B3D;
+    --ink: #0B1B2B;
+    --ok: #3F8F5F;
+    --err: #B4453A;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background:
+      repeating-linear-gradient(0deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      var(--blueprint-navy);
+    color: var(--paper);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  a { color: inherit; }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(16,36,62,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(232,238,242,0.15);
+  }
+
+  .brandmark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .brandmark .glyph {
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--copper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--copper);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .brandmark .glyph span { transform: rotate(-45deg); }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 22px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  nav a {
+    text-decoration: none;
+    opacity: 0.75;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: opacity 0.15s ease, border-color 0.15s ease;
+  }
+  nav a:hover, nav a:focus-visible { opacity: 1; border-color: var(--copper); }
+  nav a.current { opacity: 1; border-color: var(--copper); }
+
+  @media (max-width: 900px) { nav ul { display: none; } }
+
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 32px 80px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  h1 em { font-style: normal; color: var(--copper); }
+
+  p.lede {
+    max-width: 60ch;
+    color: rgba(232,238,242,0.8);
+    margin-bottom: 36px;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-end;
+    margin-bottom: 8px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(232,238,242,0.2);
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .control-group .label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+  }
+
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(232,238,242,0.35);
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .pill:hover { border-color: var(--copper); }
+  .pill[aria-pressed="true"] {
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    border-color: var(--copper);
+    font-weight: 600;
+  }
+  .pill:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
+
+  .search-group input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 8px 2px;
+    outline: none;
+    min-width: 220px;
+  }
+  .search-group input:focus { border-color: var(--copper); }
+
+  .sheet-status {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.6);
+    margin: 28px 0 24px;
+    min-height: 1.2em;
+  }
+  .sheet-status[data-state="err"] { color: var(--err); }
+
+  .table-wrap {
+    border: 1px solid rgba(232,238,242,0.3);
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+
+  thead th {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(232,238,242,0.3);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(232,238,242,0.15);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(232,238,242,0.04); }
+
+  .doc-title { font-weight: 500; }
+  .doc-meta {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: rgba(232,238,242,0.55);
+  }
+
+  .price-tag {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .price-tag.free { color: var(--ok); }
+  .price-tag.paid { color: var(--copper); }
+
+  .doc-link {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid rgba(232,238,242,0.35);
+    padding: 6px 12px;
+    white-space: nowrap;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .doc-link:hover { border-color: var(--copper); background: rgba(201,123,61,0.12); }
+
+  .empty-row td {
+    text-align: center;
+    color: rgba(232,238,242,0.5);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 32px 16px;
+  }
+
+  footer {
+    border-top: 1px solid rgba(232,238,242,0.2);
+    padding: 32px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: rgba(232,238,242,0.55);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brandmark">
+    <span class="glyph"><span>CE</span></span>
+    CHUKA ENGINEERING COMMUNITY
+  </a>
+  <nav>
+    <ul>
+      <li><a href="index.html#register">Register</a></li>
+      <li><a href="timetables.html">Timetables</a></li>
+      <li><a href="personnel.html">Personnel</a></li>
+      <li><a href="sports.html">Sports</a></li>
+      <li><a href="club.html">Club</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="documents.html" class="current">Documents</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <p class="eyebrow">Sheet 07 — Documents</p>
+  <h1>Notes &amp; <em>revision papers</em></h1>
+  <p class="lede">Free and paid documents by year and unit — lecture notes, past papers, cheat sheets. Filter by year, or search by title or unit. Paid items are marked; contact the uploader for access details.</p>
+
+  <div class="controls">
+    <div class="control-group">
+      <span class="label">Year of study</span>
+      <div class="pill-row" id="yearPills">
+        <button class="pill" data-year="all" aria-pressed="true">All years</button>
+        <button class="pill" data-year="1st Year">1st Year</button>
+        <button class="pill" data-year="2nd Year">2nd Year</button>
+        <button class="pill" data-year="3rd Year">3rd Year</button>
+        <button class="pill" data-year="4th Year">4th Year</button>
+        <button class="pill" data-year="5th Year">5th Year</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <span class="label">Price</span>
+      <div class="pill-row" id="pricePills">
+        <button class="pill" data-price="all" aria-pressed="true">All</button>
+        <button class="pill" data-price="free">Free only</button>
+        <button class="pill" data-price="paid">Paid only</button>
+      </div>
+    </div>
+    <div class="control-group search-group">
+      <span class="label">Search</span>
+      <input type="text" id="searchInput" placeholder="Title or unit…">
+    </div>
+  </div>
+
+  <p class="sheet-status" id="sheetStatus" role="status" aria-live="polite">Loading documents…</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Unit / Subject</th>
+          <th>Year</th>
+          <th>Price</th>
+          <th>Uploaded</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="docBody">
+        <tr class="empty-row"><td colspan="6">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer>Chuka Engineering Community — student-run, sheet-backed.</footer>
+
+<script>
+  // Same Apps Script Web App URL used across every page.
+  const WEB_APP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+  let documents = [];
+  let activeYear = 'all';
+  let activePrice = 'all';
+  let searchTerm = '';
+
+  const sheetStatus = document.getElementById('sheetStatus');
+  const docBody = document.getElementById('docBody');
+  const searchInput = document.getElementById('searchInput');
+
+  document.querySelectorAll('#yearPills .pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#yearPills .pill').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      activeYear = btn.dataset.year;
+      renderDocuments();
+    });
+  });
+
+  document.querySelectorAll('#pricePills .pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#pricePills .pill').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      activePrice = btn.dataset.price;
+      renderDocuments();
+    });
+  });
+
+  let searchDebounce;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+      searchTerm = searchInput.value.trim().toLowerCase();
+      renderDocuments();
+    }, 150);
+  });
+
+  async function loadDocuments() {
+    setStatus('Loading…', '');
+    try {
+      const res = await fetch(`${WEB_APP_URL}?action=getDocuments`);
+      const result = await res.json();
+      if (!result.success) { setStatus(result.error || 'Could not load documents.', 'err'); return; }
+      documents = result.data;
+      renderDocuments();
+    } catch (err) {
+      setStatus('Network error — check the Web App URL is set.', 'err');
+    }
+  }
+
+  function renderDocuments() {
+    let rows = documents;
+
+    if (activeYear !== 'all') {
+      rows = rows.filter(r => r['Year of Study'] === activeYear);
+    }
+    if (activePrice === 'free') {
+      rows = rows.filter(r => Number(r['Price (KES, 0 = Free)']) === 0);
+    } else if (activePrice === 'paid') {
+      rows = rows.filter(r => Number(r['Price (KES, 0 = Free)']) > 0);
+    }
+    if (searchTerm) {
+      rows = rows.filter(r =>
+        String(r['Document Title']).toLowerCase().includes(searchTerm) ||
+        String(r['Unit/Subject']).toLowerCase().includes(searchTerm)
+      );
+    }
+
+    setStatus(`${rows.length} document${rows.length === 1 ? '' : 's'} listed.`, '');
+
+    if (!rows.length) {
+      docBody.innerHTML = `<tr class="empty-row"><td colspan="6">Nothing matches these filters yet.</td></tr>`;
+      return;
+    }
+
+    docBody.innerHTML = rows.map(r => {
+      const price = Number(r['Price (KES, 0 = Free)']) || 0;
+      const priceLabel = price === 0
+        ? `<span class="price-tag free">Free</span>`
+        : `<span class="price-tag paid">KES ${price}</span>`;
+      const uploadDate = formatDate(r['Upload Date']);
+      const link = r['File Link']
+        ? `<a class="doc-link" href="${escapeAttr(r['File Link'])}" target="_blank" rel="noopener">Open</a>`
+        : '';
+
+      return `
+        <tr>
+          <td>
+            <div class="doc-title">${escapeHtml(r['Document Title'])}</div>
+            <div class="doc-meta">${escapeHtml(r['Category'])}${r['Uploaded By'] ? ' · ' + escapeHtml(r['Uploaded By']) : ''}</div>
+          </td>
+          <td>${escapeHtml(r['Unit/Subject'])}</td>
+          <td>${escapeHtml(r['Year of Study'])}</td>
+          <td>${priceLabel}</td>
+          <td class="doc-meta">${uploadDate}</td>
+          <td>${link}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function formatDate(v) {
+    if (!v) return '';
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return escapeHtml(v);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function escapeHtml(v) {
+    if (v === undefined || v === null) return '';
+    return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(v) { return escapeHtml(v); }
+
+  function setStatus(msg, state) {
+    sheetStatus.textContent = msg;
+    if (state) sheetStatus.setAttribute('data-state', state); else sheetStatus.removeAttribute('data-state');
+  }
+
+  loadDocuments();
+</script>
+
+</body>
+</html>
