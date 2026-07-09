@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events — Chuka Engineering Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blueprint-navy: #10243E;
+    --blueprint-blue: #2E6F9E;
+    --blueprint-line: #4C86AE;
+    --paper: #E8EEF2;
+    --copper: #C97B3D;
+    --ink: #0B1B2B;
+    --ok: #3F8F5F;
+    --err: #B4453A;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background:
+      repeating-linear-gradient(0deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      var(--blueprint-navy);
+    color: var(--paper);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  a { color: inherit; }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(16,36,62,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(232,238,242,0.15);
+  }
+
+  .brandmark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .brandmark .glyph {
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--copper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--copper);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .brandmark .glyph span { transform: rotate(-45deg); }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 24px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  nav a {
+    text-decoration: none;
+    opacity: 0.75;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: opacity 0.15s ease, border-color 0.15s ease;
+  }
+  nav a:hover, nav a:focus-visible { opacity: 1; border-color: var(--copper); }
+  nav a.current { opacity: 1; border-color: var(--copper); }
+
+  @media (max-width: 900px) { nav ul { display: none; } }
+
+  .hero {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 32px 24px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 18px;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.08;
+    max-width: 18ch;
+  }
+
+  .hero h1 em { font-style: normal; color: var(--copper); }
+
+  .hero p.lede {
+    margin-top: 16px;
+    max-width: 60ch;
+    font-size: 1rem;
+    color: rgba(232,238,242,0.8);
+  }
+
+  section {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 32px 64px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid rgba(232,238,242,0.2);
+    padding-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .section-head .left { display: flex; align-items: baseline; gap: 16px; }
+
+  .sheet-no {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--copper);
+    flex-shrink: 0;
+  }
+
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.6rem;
+  }
+
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--blueprint-line);
+  }
+
+  .filter-row select {
+    background: rgba(232,238,242,0.06);
+    border: 1px solid rgba(232,238,242,0.3);
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 8px 10px;
+    outline: none;
+  }
+  .filter-row select option { background: var(--blueprint-navy); }
+
+  #eventsStatus {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.65);
+    margin-bottom: 20px;
+  }
+  #eventsStatus[data-state="err"] { color: var(--err); }
+
+  .event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .event-card {
+    border: 1px solid rgba(232,238,242,0.25);
+    background: rgba(232,238,242,0.03);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .event-media {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: rgba(0,0,0,0.25);
+    overflow: hidden;
+    position: relative;
+  }
+  .event-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .event-media iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  .event-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+
+  .event-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .tag {
+    border: 1px solid rgba(232,238,242,0.35);
+    padding: 3px 8px;
+    color: rgba(232,238,242,0.75);
+  }
+  .tag.status-Upcoming { border-color: var(--copper); color: var(--copper); }
+  .tag.status-Ongoing { border-color: var(--ok); color: var(--ok); }
+  .tag.status-Completed { border-color: rgba(232,238,242,0.35); color: rgba(232,238,242,0.5); }
+  .tag.status-Cancelled { border-color: var(--err); color: var(--err); }
+
+  .event-body h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .event-meta {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--blueprint-line);
+  }
+
+  .event-body p.desc {
+    font-size: 0.92rem;
+    color: rgba(232,238,242,0.8);
+  }
+
+  .event-links {
+    margin-top: auto;
+    padding-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .event-links a {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    padding: 8px 12px;
+    border: 1px solid rgba(232,238,242,0.35);
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .event-links a:hover, .event-links a:focus-visible {
+    border-color: var(--copper);
+    background: rgba(201,123,61,0.1);
+  }
+  .event-links a.form-link { border-color: var(--copper); color: var(--copper); }
+
+  .empty-state {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.55);
+    padding: 32px 0;
+  }
+
+  /* ---------- POST AN EVENT (ADMIN) ---------- */
+
+  details.admin-panel {
+    border: 1px solid rgba(232,238,242,0.3);
+    background: rgba(232,238,242,0.04);
+  }
+
+  details.admin-panel > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+  }
+  details.admin-panel > summary::-webkit-details-marker { display: none; }
+  details.admin-panel > summary .chev { transition: transform 0.15s ease; }
+  details.admin-panel[open] > summary .chev { transform: rotate(90deg); }
+
+  .admin-form-wrap { padding: 4px 22px 24px; }
+
+  .admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .admin-grid .full { grid-column: 1 / -1; }
+
+  @media (max-width: 700px) { .admin-grid { grid-template-columns: 1fr; } }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+  }
+  .field input, .field select, .field textarea {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 8px 2px;
+    outline: none;
+    resize: vertical;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--copper); }
+  .field select option { background: var(--blueprint-navy); }
+  .field small { font-size: 0.72rem; color: rgba(232,238,242,0.5); }
+
+  .auth-strip {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px dashed rgba(232,238,242,0.3);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    align-items: end;
+  }
+  @media (max-width: 700px) { .auth-strip { grid-template-columns: 1fr; } }
+
+  .submit-row {
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  button.commit {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    border: none;
+    padding: 14px 28px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  button.commit:hover { filter: brightness(1.1); }
+  button.commit:active { transform: translateY(1px); }
+  button.commit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  #adminFormStatus {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+  #adminFormStatus[data-state="ok"] { color: var(--ok); }
+  #adminFormStatus[data-state="err"] { color: var(--err); }
+
+  footer {
+    border-top: 1px solid rgba(232,238,242,0.2);
+    padding: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: rgba(232,238,242,0.55);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brandmark">
+    <span class="glyph"><span>CE</span></span>
+    CHUKA ENGINEERING COMMUNITY
+  </a>
+  <nav>
+    <ul>
+      <li><a href="index.html#register">Register</a></li>
+      <li><a href="timetables.html">Timetables</a></li>
+      <li><a href="club.html">Club</a></li>
+      <li><a href="personnel.html">Personnel</a></li>
+      <li><a href="sports.html">Sports</a></li>
+      <li><a href="events.html" class="current">Events</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="documents.html">Documents</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+
+  <div class="hero">
+    <p class="eyebrow">Community — Sheet 08</p>
+    <h1>Talks, workshops and <em>fixtures</em> worth showing up for.</h1>
+    <p class="lede">
+      Every event posted by a class admin, the club, or the general
+      community lands here — with recap videos, posters, sign-up forms
+      and attachments in one place.
+    </p>
+  </div>
+
+  <section id="events">
+    <div class="section-head">
+      <div class="left">
+        <span class="sheet-no">08</span>
+        <h2>Upcoming &amp; recent events</h2>
+      </div>
+      <div class="filter-row">
+        <label for="yearFilter">Filter</label>
+        <select id="yearFilter">
+          <option value="">All events</option>
+          <option>All Years</option>
+          <option>1st Year</option>
+          <option>2nd Year</option>
+          <option>3rd Year</option>
+          <option>4th Year</option>
+          <option>5th Year</option>
+          <option>Engineering Club</option>
+        </select>
+      </div>
+    </div>
+
+    <p id="eventsStatus">Loading events…</p>
+    <div class="event-grid" id="eventGrid"></div>
+  </section>
+
+  <section id="post-event">
+    <details class="admin-panel">
+      <summary>
+        <span>Post an event (admin only)</span>
+        <span class="chev">›</span>
+      </summary>
+      <div class="admin-form-wrap">
+        <form id="eventForm" novalidate>
+          <div class="admin-grid">
+            <div class="field full">
+              <label for="evTitle">Title</label>
+              <input type="text" id="evTitle" required>
+            </div>
+            <div class="field full">
+              <label for="evDescription">Description</label>
+              <textarea id="evDescription" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label for="evDate">Event date</label>
+              <input type="date" id="evDate" required>
+            </div>
+            <div class="field">
+              <label for="evTime">Event time</label>
+              <input type="time" id="evTime">
+            </div>
+            <div class="field">
+              <label for="evVenue">Venue</label>
+              <input type="text" id="evVenue" placeholder="e.g. Engineering Block, LT2">
+            </div>
+            <div class="field">
+              <label for="evAudience">Audience</label>
+              <select id="evAudience">
+                <option>All Years</option>
+                <option>1st Year</option>
+                <option>2nd Year</option>
+                <option>3rd Year</option>
+                <option>4th Year</option>
+                <option>5th Year</option>
+                <option>Engineering Club</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="evYoutube">YouTube link</label>
+              <input type="url" id="evYoutube" placeholder="https://youtu.be/…">
+              <small>Recap, livestream, or promo video — optional.</small>
+            </div>
+            <div class="field">
+              <label for="evImage">Image / poster URL</label>
+              <input type="url" id="evImage" placeholder="https://…">
+            </div>
+            <div class="field">
+              <label for="evForm">Sign-up form link</label>
+              <input type="url" id="evForm" placeholder="Google Form link — optional">
+            </div>
+            <div class="field full">
+              <label for="evAttachments">Attachment links</label>
+              <input type="text" id="evAttachments" placeholder="Flyer, brief, slides — separate multiple links with a comma">
+            </div>
+          </div>
+
+          <div class="auth-strip">
+            <div class="field">
+              <label for="evUsername">Admin username</label>
+              <input type="text" id="evUsername" required>
+            </div>
+            <div class="field">
+              <label for="evPassword">Admin password</label>
+              <input type="password" id="evPassword" required>
+            </div>
+          </div>
+
+          <div class="submit-row">
+            <span id="adminFormStatus" role="status" aria-live="polite"></span>
+            <button type="submit" class="commit" id="evSubmitBtn">Post event</button>
+          </div>
+        </form>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  <span>Chuka Engineering Community — student-run, sheet-backed.</span>
+  <span>Built on Google Sheets + Apps Script</span>
+</footer>
+
+<script>
+  // Replace with your deployed Apps Script Web App URL (see api.gs).
+  const WEB_APP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+  const eventGrid = document.getElementById('eventGrid');
+  const eventsStatus = document.getElementById('eventsStatus');
+  const yearFilter = document.getElementById('yearFilter');
+
+  let allEvents = [];
+
+  async function loadEvents() {
+    eventsStatus.textContent = 'Loading events…';
+    eventsStatus.removeAttribute('data-state');
+    try {
+      const res = await fetch(WEB_APP_URL + '?action=getEvents');
+      const result = await res.json();
+      if (!result.success) throw new Error(result.error || 'Failed to load events.');
+
+      allEvents = (result.data || []).sort((a, b) =>
+        new Date(a['Event Date']) - new Date(b['Event Date'])
+      );
+      renderEvents();
+    } catch (err) {
+      eventsStatus.textContent = 'Could not load events — check the Web App URL is set.';
+      eventsStatus.setAttribute('data-state', 'err');
+    }
+  }
+
+  function renderEvents() {
+    const filter = yearFilter.value;
+    const list = filter
+      ? allEvents.filter(ev => ev['Year of Study'] === filter)
+      : allEvents;
+
+    eventGrid.innerHTML = '';
+
+    if (!list.length) {
+      eventsStatus.textContent = 'No events posted yet.';
+      return;
+    }
+
+    eventsStatus.textContent = list.length + ' event' + (list.length === 1 ? '' : 's');
+    list.forEach(ev => eventGrid.appendChild(buildEventCard(ev)));
+  }
+
+  function buildEventCard(ev) {
+    const card = document.createElement('article');
+    card.className = 'event-card';
+
+    const media = document.createElement('div');
+    media.className = 'event-media';
+    const videoId = extractYoutubeId_(ev['YouTube Link']);
+    if (videoId) {
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube.com/embed/' + videoId;
+      iframe.title = ev['Title'] || 'Event video';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.loading = 'lazy';
+      media.appendChild(iframe);
+    } else if (ev['Image URL']) {
+      const img = document.createElement('img');
+      img.src = ev['Image URL'];
+      img.alt = ev['Title'] || 'Event image';
+      img.loading = 'lazy';
+      media.appendChild(img);
+    }
+    if (media.childElementCount) card.appendChild(media);
+
+    const body = document.createElement('div');
+    body.className = 'event-body';
+
+    const tags = document.createElement('div');
+    tags.className = 'event-tags';
+    const status = ev['Status'] || 'Upcoming';
+    tags.innerHTML =
+      '<span class="tag status-' + status + '">' + escapeHtml_(status) + '</span>' +
+      '<span class="tag">' + escapeHtml_(ev['Year of Study'] || 'All Years') + '</span>';
+    body.appendChild(tags);
+
+    const h3 = document.createElement('h3');
+    h3.textContent = ev['Title'] || 'Untitled event';
+    body.appendChild(h3);
+
+    const meta = document.createElement('div');
+    meta.className = 'event-meta';
+    meta.textContent = [formatDate_(ev['Event Date']), ev['Event Time'], ev['Venue']]
+      .filter(Boolean).join(' · ');
+    body.appendChild(meta);
+
+    if (ev['Description']) {
+      const desc = document.createElement('p');
+      desc.className = 'desc';
+      desc.textContent = ev['Description'];
+      body.appendChild(desc);
+    }
+
+    const links = document.createElement('div');
+    links.className = 'event-links';
+
+    if (ev['Form Link']) {
+      links.appendChild(makeLink_(ev['Form Link'], 'Sign up', 'form-link'));
+    }
+    parseAttachments_(ev['Attachment Links']).forEach((url, i) => {
+      links.appendChild(makeLink_(url, 'Attachment ' + (i + 1)));
+    });
+    if (videoId && ev['Image URL']) {
+      // If both exist, still surface the poster as a link so it isn't lost.
+      links.appendChild(makeLink_(ev['Image URL'], 'Poster'));
+    }
+
+    if (links.childElementCount) body.appendChild(links);
+    card.appendChild(body);
+    return card;
+  }
+
+  function makeLink_(url, label, extraClass) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = label;
+    if (extraClass) a.className = extraClass;
+    return a;
+  }
+
+  function parseAttachments_(raw) {
+    if (!raw) return [];
+    return String(raw)
+      .split(/[,\n]/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  function extractYoutubeId_(link) {
+    if (!link) return '';
+    const s = String(link);
+    const patterns = [/youtu\.be\/([a-zA-Z0-9_-]+)/, /[?&]v=([a-zA-Z0-9_-]+)/, /embed\/([a-zA-Z0-9_-]+)/];
+    for (const p of patterns) {
+      const m = s.match(p);
+      if (m) return m[1];
+    }
+    return '';
+  }
+
+  function formatDate_(value) {
+    if (!value) return '';
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return value;
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function escapeHtml_(v) {
+    return String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  yearFilter.addEventListener('change', renderEvents);
+  loadEvents();
+
+  // ---------- POST EVENT FORM ----------
+
+  const eventForm = document.getElementById('eventForm');
+  const adminFormStatus = document.getElementById('adminFormStatus');
+  const evSubmitBtn = document.getElementById('evSubmitBtn');
+
+  async function sha256Hex_(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  eventForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const title = document.getElementById('evTitle').value.trim();
+    const eventDate = document.getElementById('evDate').value;
+    const username = document.getElementById('evUsername').value.trim();
+    const password = document.getElementById('evPassword').value;
+
+    if (!title || !eventDate || !username || !password) {
+      setAdminStatus_('Title, date, username and password are required.', 'err');
+      return;
+    }
+
+    setAdminStatus_('Posting…', '');
+    evSubmitBtn.disabled = true;
+
+    try {
+      const passwordHash = await sha256Hex_(password);
+      const data = {
+        title,
+        description: document.getElementById('evDescription').value.trim(),
+        eventDate,
+        eventTime: document.getElementById('evTime').value,
+        venue: document.getElementById('evVenue').value.trim(),
+        yearOfStudy: document.getElementById('evAudience').value,
+        youtubeLink: document.getElementById('evYoutube').value.trim(),
+        imageUrl: document.getElementById('evImage').value.trim(),
+        formLink: document.getElementById('evForm').value.trim(),
+        attachmentLinks: document.getElementById('evAttachments').value.trim(),
+        username,
+        passwordHash
+      };
+
+      const res = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'addEvent', data })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        setAdminStatus_('Event posted.', 'ok');
+        eventForm.reset();
+        loadEvents();
+      } else {
+        setAdminStatus_(result.error || 'Something went wrong.', 'err');
+      }
+    } catch (err) {
+      setAdminStatus_('Network error — check the Web App URL is set.', 'err');
+    } finally {
+      evSubmitBtn.disabled = false;
+    }
+  });
+
+  function setAdminStatus_(message, state) {
+    adminFormStatus.textContent = message;
+    if (state) adminFormStatus.setAttribute('data-state', state);
+    else adminFormStatus.removeAttribute('data-state');
+  }
+</script>
+
+</body>
+</html>
