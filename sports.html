@@ -188,6 +188,25 @@
 
   .fixture-card {
     background: var(--blueprint-navy);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .fixture-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: rgba(232,238,242,0.06);
+    overflow: hidden;
+  }
+  .fixture-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .fixture-body {
     padding: 24px 22px;
     display: flex;
     flex-direction: column;
@@ -302,6 +321,12 @@
     outline: none;
   }
   .form-grid input:focus { border-color: var(--copper); }
+  .form-grid small {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.7rem;
+    color: rgba(232,238,242,0.5);
+  }
 
   .admin-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 
@@ -363,6 +388,7 @@
       <li><a href="personnel.html">Personnel</a></li>
       <li><a href="sports.html" class="current">Sports</a></li>
       <li><a href="club.html">Club</a></li>
+      <li><a href="events.html">Events</a></li>
       <li><a href="shop.html">Shop</a></li>
       <li><a href="documents.html">Documents</a></li>
       <li><a href="admin.html">Admin</a></li>
@@ -441,6 +467,11 @@
           <label for="e_notes">Notes</label>
           <input type="text" id="e_notes">
         </div>
+        <div style="grid-column: 1 / -1;">
+          <label for="e_image">Team / activity photo URL</label>
+          <input type="url" id="e_image" placeholder="https://…">
+          <small>Optional — link to a hosted image (Google Drive share link, Imgur, etc.). Shows as a thumbnail on the card.</small>
+        </div>
       </div>
       <div class="admin-row">
         <button class="commit" id="submitEntryBtn">Add entry</button>
@@ -453,7 +484,7 @@
 <footer>Chuka Engineering Community — student-run, sheet-backed.</footer>
 
 <script>
-  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxB_gZomEYQteBMWdE5HNgfutm04QTgu7SBaG9vYHqHzt4meKJHrSRQIDj8WqGDbXPBiw/exec';
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwYmOsF4vcYi4G0cglCrTjVrEE4oeYQOpQWVXCjkqm4FkTseYvUdjlujIfN5ix_fTQ0xQ/exec';
 
   let selectedYear = null;
   let loggedInAdmin = null;
@@ -493,18 +524,25 @@
 
     fixtures.innerHTML = rows.map(r => `
       <div class="fixture-card">
-        <div class="fixture-sport">${escapeHtml(r['Sport/Activity'])}</div>
-        <div class="fixture-tag">Team captain</div>
-        <div class="fixture-row"><strong>${escapeHtml(r['Team Captain'])}</strong></div>
-        <div class="fixture-tag">Practice schedule</div>
-        <div class="fixture-row">${escapeHtml(r['Practice Schedule'])}</div>
-        ${r['Upcoming Fixture'] ? `
-          <div class="fixture-next">
-            <span class="badge">Upcoming</span><br>
-            <strong>${escapeHtml(r['Upcoming Fixture'])}</strong> — ${escapeHtml(r['Fixture Date'])}
+        ${r['Image URL'] ? `
+          <div class="fixture-image">
+            <img src="${escapeHtml(r['Image URL'])}" alt="${escapeHtml(r['Sport/Activity'])}" loading="lazy" onerror="this.closest('.fixture-image').remove()">
           </div>
         ` : ''}
-        ${r['Notes'] ? `<div class="fixture-row" style="margin-top:6px; color: rgba(232,238,242,0.6);">${escapeHtml(r['Notes'])}</div>` : ''}
+        <div class="fixture-body">
+          <div class="fixture-sport">${escapeHtml(r['Sport/Activity'])}</div>
+          <div class="fixture-tag">Team captain</div>
+          <div class="fixture-row"><strong>${escapeHtml(r['Team Captain'])}</strong></div>
+          <div class="fixture-tag">Practice schedule</div>
+          <div class="fixture-row">${escapeHtml(r['Practice Schedule'])}</div>
+          ${r['Upcoming Fixture'] ? `
+            <div class="fixture-next">
+              <span class="badge">Upcoming</span><br>
+              <strong>${escapeHtml(r['Upcoming Fixture'])}</strong> — ${escapeHtml(r['Fixture Date'])}
+            </div>
+          ` : ''}
+          ${r['Notes'] ? `<div class="fixture-row" style="margin-top:6px; color: rgba(232,238,242,0.6);">${escapeHtml(r['Notes'])}</div>` : ''}
+        </div>
       </div>
     `).join('');
   }
@@ -573,7 +611,8 @@
       practiceSchedule: document.getElementById('e_practice').value.trim(),
       upcomingFixture: document.getElementById('e_fixture').value.trim(),
       fixtureDate: document.getElementById('e_date').value.trim(),
-      notes: document.getElementById('e_notes').value.trim()
+      notes: document.getElementById('e_notes').value.trim(),
+      imageURL: document.getElementById('e_image').value.trim()
     };
 
     entryStatus.textContent = 'Saving…'; entryStatus.removeAttribute('data-state');
@@ -583,7 +622,7 @@
       const result = await res.json();
       if (result.success) {
         entryStatus.textContent = 'Entry added.'; entryStatus.setAttribute('data-state', 'ok');
-        ['e_sport','e_captain','e_practice','e_fixture','e_date','e_notes'].forEach(id => document.getElementById(id).value = '');
+        ['e_sport','e_captain','e_practice','e_fixture','e_date','e_notes','e_image'].forEach(id => document.getElementById(id).value = '');
         loadSports();
       } else {
         entryStatus.textContent = result.error || 'Could not save entry.'; entryStatus.setAttribute('data-state', 'err');
