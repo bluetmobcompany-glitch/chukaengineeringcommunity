@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Club — Chuka Engineering Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blueprint-navy: #10243E;
+    --blueprint-blue: #2E6F9E;
+    --blueprint-line: #4C86AE;
+    --paper: #E8EEF2;
+    --copper: #C97B3D;
+    --ink: #0B1B2B;
+    --ok: #3F8F5F;
+    --err: #B4453A;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background:
+      repeating-linear-gradient(0deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      var(--blueprint-navy);
+    color: var(--paper);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  a { color: inherit; }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(16,36,62,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(232,238,242,0.15);
+  }
+
+  .brandmark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .brandmark .glyph {
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--copper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--copper);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .brandmark .glyph span { transform: rotate(-45deg); }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 22px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  nav a {
+    text-decoration: none;
+    opacity: 0.75;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: opacity 0.15s ease, border-color 0.15s ease;
+  }
+  nav a:hover, nav a:focus-visible { opacity: 1; border-color: var(--copper); }
+  nav a.current { opacity: 1; border-color: var(--copper); }
+
+  @media (max-width: 900px) { nav ul { display: none; } }
+
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 32px 80px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    line-height: 1.1;
+    margin-bottom: 12px;
+    max-width: 18ch;
+  }
+
+  h1 em { font-style: normal; color: var(--copper); }
+
+  p.lede {
+    max-width: 60ch;
+    color: rgba(232,238,242,0.8);
+    margin-bottom: 40px;
+  }
+
+  /* ---------- REGISTRATION FORM (same spec-sheet pattern as index.html) ---------- */
+
+  .reg-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .reg-notes {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.7);
+  }
+  .reg-notes ul { margin-top: 16px; padding-left: 18px; }
+  .reg-notes li { margin-bottom: 10px; }
+
+  form.spec-sheet {
+    background: rgba(232,238,242,0.04);
+    border: 1px solid rgba(232,238,242,0.3);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    border-top: 1px solid rgba(232,238,242,0.25);
+  }
+  .field-row:first-child { border-top: none; }
+
+  .field-index {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--blueprint-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid rgba(232,238,242,0.25);
+  }
+
+  .field-body { padding: 16px 20px; }
+
+  .field-body label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 8px;
+  }
+
+  .field-body input,
+  .field-body select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 6px 2px;
+    outline: none;
+  }
+
+  .field-body input:focus,
+  .field-body select:focus {
+    border-color: var(--copper);
+  }
+
+  .field-body select option { background: var(--blueprint-navy); color: var(--paper); }
+
+  .submit-row {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  button.commit {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    border: none;
+    padding: 14px 28px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  button.commit:hover { filter: brightness(1.1); }
+  button.commit:active { transform: translateY(1px); }
+  button.commit:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.commit:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
+
+  #form-status {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    min-height: 1.2em;
+  }
+  #form-status[data-state="ok"] { color: var(--ok); }
+  #form-status[data-state="err"] { color: var(--err); }
+
+  /* ---------- INTEREST CHIPS ---------- */
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(232,238,242,0.35);
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .chip:hover { border-color: var(--copper); }
+  .chip[aria-pressed="true"] {
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    border-color: var(--copper);
+    font-weight: 600;
+  }
+  .chip:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
+
+  footer {
+    border-top: 1px solid rgba(232,238,242,0.2);
+    padding: 32px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: rgba(232,238,242,0.55);
+  }
+
+  @media (max-width: 820px) {
+    .reg-wrap { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brandmark">
+    <span class="glyph"><span>CE</span></span>
+    CHUKA ENGINEERING COMMUNITY
+  </a>
+  <nav>
+    <ul>
+      <li><a href="index.html#register">Register</a></li>
+      <li><a href="timetables.html">Timetables</a></li>
+      <li><a href="personnel.html">Personnel</a></li>
+      <li><a href="sports.html">Sports</a></li>
+      <li><a href="club.html" class="current">Club</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="documents.html">Documents</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <p class="eyebrow">Sheet 05 — Engineering Club</p>
+  <h1>Join the <em>Engineering Club</em></h1>
+  <p class="lede">
+    Open to every year of study. The club runs its own projects, talks and
+    site visits alongside your class activities — sign up once here, no
+    matter what year you're already registered under.
+  </p>
+
+  <div class="reg-wrap">
+    <div class="reg-notes">
+      <p>Before you submit:</p>
+      <ul>
+        <li>This is a separate sign-up from your class registration on the <a href="index.html#register" style="color: var(--copper);">home page</a> — both are needed if you want to be on the club roster.</li>
+        <li>Your registration number should match your student ID, so club admins can confirm your class year.</li>
+        <li>Pick as many interest areas as apply — this helps the club place you on the right project team.</li>
+        <li>Membership starts as <strong>Pending</strong> until the club's general admin confirms it.</li>
+      </ul>
+    </div>
+
+    <form class="spec-sheet" id="clubForm" novalidate>
+      <div class="field-row">
+        <div class="field-index">01</div>
+        <div class="field-body">
+          <label for="fullName">Full name</label>
+          <input type="text" id="fullName" name="fullName" autocomplete="name" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-index">02</div>
+        <div class="field-body">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-index">03</div>
+        <div class="field-body">
+          <label for="phone">Phone number</label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-index">04</div>
+        <div class="field-body">
+          <label for="regNumber">Registration number</label>
+          <input type="text" id="regNumber" name="regNumber" placeholder="e.g. ENG-2024-00123" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-index">05</div>
+        <div class="field-body">
+          <label for="year">Year of study</label>
+          <select id="year" name="year" required>
+            <option value="" disabled selected>Select year</option>
+            <option>1st Year</option>
+            <option>2nd Year</option>
+            <option>3rd Year</option>
+            <option>4th Year</option>
+            <option>5th Year</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-index">06</div>
+        <div class="field-body">
+          <label>Area of interest</label>
+          <div class="chip-row" id="interestChips">
+            <button type="button" class="chip" data-value="Robotics &amp; Automation">Robotics &amp; Automation</button>
+            <button type="button" class="chip" data-value="Renewable Energy">Renewable Energy</button>
+            <button type="button" class="chip" data-value="Software &amp; Electronics">Software &amp; Electronics</button>
+            <button type="button" class="chip" data-value="Civil &amp; Structural">Civil &amp; Structural</button>
+            <button type="button" class="chip" data-value="Competitions &amp; Hackathons">Competitions &amp; Hackathons</button>
+            <button type="button" class="chip" data-value="Outreach &amp; Mentorship">Outreach &amp; Mentorship</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <span id="form-status" role="status" aria-live="polite"></span>
+        <button type="submit" class="commit" id="submitBtn">Submit club sign-up</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<footer>Chuka Engineering Community — student-run, sheet-backed.</footer>
+
+<script>
+  // Same Apps Script Web App URL used across every page.
+  const WEB_APP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+  const form = document.getElementById('clubForm');
+  const statusEl = document.getElementById('form-status');
+  const submitBtn = document.getElementById('submitBtn');
+  const selectedInterests = new Set();
+
+  document.querySelectorAll('#interestChips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.dataset.value;
+      if (selectedInterests.has(val)) {
+        selectedInterests.delete(val);
+        chip.removeAttribute('aria-pressed');
+      } else {
+        selectedInterests.add(val);
+        chip.setAttribute('aria-pressed', 'true');
+      }
+    });
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = {
+      fullName: document.getElementById('fullName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      regNumber: document.getElementById('regNumber').value.trim(),
+      year: document.getElementById('year').value,
+      interest: Array.from(selectedInterests).join(', ')
+    };
+
+    const required = ['fullName', 'email', 'phone', 'regNumber', 'year'];
+    if (required.some(k => !data[k])) {
+      setStatus('Please fill in every required field.', 'err');
+      return;
+    }
+
+    setStatus('Submitting…', '');
+    submitBtn.disabled = true;
+
+    try {
+      const res = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'registerClubMember', data })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        setStatus('Sign-up submitted — pending confirmation.', 'ok');
+        form.reset();
+        selectedInterests.clear();
+        document.querySelectorAll('#interestChips .chip').forEach(c => c.removeAttribute('aria-pressed'));
+      } else {
+        setStatus(result.error || 'Something went wrong.', 'err');
+      }
+    } catch (err) {
+      setStatus('Network error — check the Web App URL is set.', 'err');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  function setStatus(message, state) {
+    statusEl.textContent = message;
+    if (state) statusEl.setAttribute('data-state', state);
+    else statusEl.removeAttribute('data-state');
+  }
+</script>
+
+</body>
+</html>
