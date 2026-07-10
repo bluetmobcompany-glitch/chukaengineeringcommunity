@@ -751,6 +751,30 @@
     color: rgba(232,238,242,0.7);
   }
 
+  .book-link-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .book-link-btn {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--blueprint-navy);
+    background: var(--copper);
+    padding: 9px 16px;
+    border-radius: 2px;
+    font-weight: 600;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .book-link-btn:hover, .book-link-btn:focus-visible { filter: brightness(1.1); }
+  .book-link-btn:active { transform: translateY(1px); }
+
   @media (max-width: 720px) {
     .inspiration-body { grid-template-columns: 1fr; }
     .book-rec { border-left: none; padding-left: 0; border-top: 1px solid rgba(232,238,242,0.25); padding-top: 20px; }
@@ -1524,11 +1548,13 @@
         : '<p class="hint-empty" style="padding:0;">No motivation quote set for this week.</p>';
 
       const bookTitle = String(latest['Book'] || '').trim();
+      const bookLinkRaw = String(latest['Book Link'] || '').trim();
+      const bookLinkHtml = bookLinkRaw ? renderBookLink_(bookLinkRaw) : '';
       const bookHtml = bookTitle
         ? '<div class="book-rec">' +
             '<span class="hint-tag">Book of the week</span>' +
             '<h4>' + escapeHtml(bookTitle) + (latest['Book Author'] ? ' — ' + escapeHtml(latest['Book Author']) : '') + '</h4>' +
-            (latest['Book Link'] ? '<p>' + escapeHtml(latest['Book Link']) + '</p>' : '') +
+            bookLinkHtml +
           '</div>'
         : '<div class="book-rec"><span class="hint-tag">Book of the week</span><p>No pick set for this week.</p></div>';
 
@@ -1643,6 +1669,35 @@
     } catch (err) {
       panel.innerHTML = '<div class="hint-empty">Couldn\'t load student distribution right now.</div>';
     }
+  }
+
+  // Turns a "Book Link" cell into one or more buttons when the value(s)
+  // look like URLs, or plain note text otherwise (e.g. "Available in the
+  // library, ask the librarian"). Supports multiple links separated by a
+  // comma or newline, same convention as the Events "Attachment Links"
+  // column, so admins can drop more than one link (e.g. a PDF + a store
+  // page) in a single cell.
+  function renderBookLink_(raw) {
+    const parts = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+    if (!parts.length) return '';
+
+    const isUrl = (s) => /^https?:\/\//i.test(s);
+    const urlParts = parts.filter(isUrl);
+    const noteParts = parts.filter(p => !isUrl(p));
+
+    let html = '';
+    if (urlParts.length) {
+      html += '<div class="book-link-buttons">' +
+        urlParts.map((url, i) => {
+          const label = urlParts.length > 1 ? 'Link ' + (i + 1) : 'Get the book';
+          return '<a class="book-link-btn" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(label) + ' &rarr;</a>';
+        }).join('') +
+        '</div>';
+    }
+    if (noteParts.length) {
+      html += '<p>' + escapeHtml(noteParts.join(' · ')) + '</p>';
+    }
+    return html;
   }
 
   function truncate(text, max) {
