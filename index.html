@@ -7,6 +7,7 @@
 <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   :root {
     --blueprint-navy: #10243E;
@@ -515,9 +516,23 @@
   }
 
   /* ---------- WELLNESS DASHBOARD ---------- */
-  /* Reuses .hint-grid as the outer grid so it matches the events-hint
-     styling; these classes style the cards/labels inside it. Aggregate
-     only — averages and counts per year, never an individual response. */
+  /* The headline visual is now a multi-week trend line chart (Chart.js),
+     one line per year of study, so the community sees the SHAPE of how
+     wellbeing is moving over time — not just a single week's numbers.
+     A small "snapshot" strip of the latest week sits underneath for
+     quick context. Still aggregate-only: averages and counts per year,
+     never an individual response. */
+
+  .wellness-chart-wrap {
+    background: rgba(232,238,242,0.04);
+    border: 1px solid rgba(232,238,242,0.3);
+    padding: 24px 20px 12px;
+    margin-bottom: 1px;
+  }
+
+  .wellness-chart-wrap canvas {
+    max-height: 320px;
+  }
 
   .wellness-week-label {
     grid-column: 1 / -1;
@@ -584,6 +599,161 @@
     font-family: var(--font-mono);
     font-size: 0.7rem;
     color: rgba(232,238,242,0.45);
+  }
+
+  /* ---------- STUDENT DISTRIBUTION (live pie chart) ---------- */
+
+  .distribution-wrap {
+    display: grid;
+    grid-template-columns: minmax(220px, 320px) 1fr;
+    gap: 40px;
+    align-items: center;
+    background: rgba(232,238,242,0.04);
+    border: 1px solid rgba(232,238,242,0.3);
+    padding: 28px 26px;
+  }
+
+  .distribution-chart-box {
+    position: relative;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .distribution-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .distribution-row {
+    display: grid;
+    grid-template-columns: 14px 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .distribution-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .distribution-row .dist-year {
+    font-family: var(--font-body);
+    color: var(--paper);
+  }
+
+  .distribution-row .dist-count {
+    color: rgba(232,238,242,0.7);
+  }
+
+  .distribution-row .dist-pct {
+    color: var(--copper);
+    min-width: 3.5em;
+    text-align: right;
+  }
+
+  .distribution-total {
+    margin-top: 6px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(232,238,242,0.2);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: rgba(232,238,242,0.5);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .live-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ok);
+    margin-right: 6px;
+    box-shadow: 0 0 0 0 rgba(63,143,95,0.6);
+    animation: live-pulse 2s infinite;
+  }
+
+  @keyframes live-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(63,143,95,0.55); }
+    70% { box-shadow: 0 0 0 6px rgba(63,143,95,0); }
+    100% { box-shadow: 0 0 0 0 rgba(63,143,95,0); }
+  }
+
+  @media (max-width: 720px) {
+    .distribution-wrap { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- WEEKLY INSPIRATION (motivation + book of the week) ---------- */
+
+  .inspiration-panel {
+    background: rgba(232,238,242,0.04);
+    border: 1px solid rgba(232,238,242,0.3);
+  }
+
+  .inspiration-body {
+    padding: 26px 26px 22px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .inspiration-body blockquote {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--paper);
+    border-left: 3px solid var(--copper);
+    padding-left: 18px;
+  }
+
+  .inspiration-body blockquote .attr {
+    display: block;
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--blueprint-line);
+  }
+
+  .book-rec {
+    border-left: 1px solid rgba(232,238,242,0.25);
+    padding-left: 24px;
+  }
+
+  .book-rec .hint-tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--copper);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .book-rec h4 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .book-rec p {
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.7);
+  }
+
+  @media (max-width: 720px) {
+    .inspiration-body { grid-template-columns: 1fr; }
+    .book-rec { border-left: none; padding-left: 0; border-top: 1px solid rgba(232,238,242,0.25); padding-top: 20px; }
   }
 
   /* ---------- QUICK LINKS ---------- */
@@ -855,12 +1025,40 @@
   <section id="wellness">
     <div class="section-head">
       <span class="sheet-no">—</span>
-      <h2>Community wellness</h2>
+      <h2>Community wellness trends</h2>
       <span class="section-sub">Aggregate only — no individual response shown</span>
+    </div>
+
+    <div class="wellness-chart-wrap" id="wellnessChartWrap">
+      <canvas id="wellnessChart" role="img" aria-label="Line chart of weekly average wellbeing rating per year of study"></canvas>
     </div>
 
     <div class="hint-grid" id="wellnessDashboard">
       <div class="hint-empty">Loading wellness check-in data…</div>
+    </div>
+  </section>
+
+  <section id="distribution">
+    <div class="section-head">
+      <span class="sheet-no">—</span>
+      <h2>Student distribution</h2>
+      <span class="section-sub" id="distributionSub"><span class="live-dot"></span>Live from the register</span>
+    </div>
+
+    <div class="distribution-wrap" id="distributionPanel">
+      <div class="hint-empty">Loading student distribution…</div>
+    </div>
+  </section>
+
+  <section id="inspiration">
+    <div class="section-head">
+      <span class="sheet-no">—</span>
+      <h2>This week's boost</h2>
+      <span class="section-sub">Motivation + a book worth your time</span>
+    </div>
+
+    <div class="inspiration-panel" id="inspirationCard">
+      <div class="hint-empty">Loading this week's inspiration…</div>
     </div>
   </section>
 
@@ -1074,6 +1272,9 @@
   // Shows a lightweight top banner if this browser's remembered student
   // still needs to activate. Doesn't block anything on this page — the
   // hard gate lives in activation-gate.js on Shop/Documents/Groups/Events.
+  // (Note: this banner is purely informational/UI. It has no bearing on
+  // whether a student receives wellness check-in emails — those go out
+  // to everyone with an email on file, activated or not.)
 
   async function updateActivationBanner() {
     const regNumber = localStorage.getItem('cec_regnumber');
@@ -1132,13 +1333,23 @@
     }
   }
 
-  /* ---------- WELLNESS DASHBOARD ---------- */
+  /* ---------- WELLNESS DASHBOARD (trend chart + latest-week snapshot) ---------- */
   // Pulls the pre-aggregated "Wellness Summary" sheet (built server-side
   // by rebuildWellnessSummary() in wellness.gs) so this page only ever
   // sees weekly averages per year — never a single student's rating or
-  // comment.
+  // comment. The chart plots every week on record, one line per year, so
+  // visitors see the TREND, not just a single number.
 
   const WELLNESS_YEAR_ORDER = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+  const WELLNESS_YEAR_COLORS = {
+    '1st Year': '#4C86AE',
+    '2nd Year': '#3F8F5F',
+    '3rd Year': '#C97B3D',
+    '4th Year': '#8A8F63',
+    '5th Year': '#B4453A'
+  };
+
+  let wellnessChartInstance = null;
 
   function wellnessColorFor(avg) {
     if (avg >= 4) return 'var(--ok)';
@@ -1148,13 +1359,17 @@
   }
 
   async function loadWellnessDashboard() {
-    const container = document.getElementById('wellnessDashboard');
+    const cardContainer = document.getElementById('wellnessDashboard');
+    const chartWrap = document.getElementById('wellnessChartWrap');
+    const canvas = document.getElementById('wellnessChart');
+
     try {
       const res = await fetch(WEB_APP_URL + '?action=getWellnessSummary');
       const result = await res.json();
 
       if (!result.success || !Array.isArray(result.data) || !result.data.length) {
-        container.innerHTML = '<div class="hint-empty">No wellness check-ins logged yet — they go out twice a week.</div>';
+        chartWrap.style.display = 'none';
+        cardContainer.innerHTML = '<div class="hint-empty">No wellness check-ins logged yet — they go out twice a week.</div>';
         return;
       }
 
@@ -1165,8 +1380,72 @@
         .filter(r => r['Week Starting'] === latestWeek)
         .sort((a, b) => WELLNESS_YEAR_ORDER.indexOf(a['Year of Study']) - WELLNESS_YEAR_ORDER.indexOf(b['Year of Study']));
 
+      // ----- Trend chart: one line per year, across every week on record -----
+      if (typeof Chart !== 'undefined' && weeks.length) {
+        chartWrap.style.display = 'block';
+
+        const yearsPresent = WELLNESS_YEAR_ORDER.filter(year => rows.some(r => r['Year of Study'] === year));
+        const datasets = yearsPresent.map(year => {
+          const byWeek = {};
+          rows.filter(r => r['Year of Study'] === year).forEach(r => {
+            byWeek[r['Week Starting']] = Number(r['Average Wellbeing Rating']);
+          });
+          const color = WELLNESS_YEAR_COLORS[year] || '#4C86AE';
+          return {
+            label: year,
+            data: weeks.map(w => (byWeek[w] === undefined || isNaN(byWeek[w])) ? null : byWeek[w]),
+            borderColor: color,
+            backgroundColor: color,
+            spanGaps: true,
+            tension: 0.35,
+            borderWidth: 2.5,
+            pointRadius: 3,
+            pointHoverRadius: 5
+          };
+        });
+
+        if (wellnessChartInstance) {
+          wellnessChartInstance.destroy();
+        }
+
+        wellnessChartInstance = new Chart(canvas.getContext('2d'), {
+          type: 'line',
+          data: { labels: weeks, datasets: datasets },
+          options: {
+            responsive: true,
+            interaction: { mode: 'nearest', intersect: false },
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { color: '#E8EEF2', font: { family: 'IBM Plex Mono', size: 11 }, boxWidth: 14 }
+              },
+              tooltip: {
+                titleFont: { family: 'IBM Plex Mono' },
+                bodyFont: { family: 'IBM Plex Mono' }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: 'rgba(232,238,242,0.6)', font: { family: 'IBM Plex Mono', size: 10 } },
+                grid: { color: 'rgba(232,238,242,0.08)' }
+              },
+              y: {
+                min: 1,
+                max: 5,
+                ticks: { color: 'rgba(232,238,242,0.6)', font: { family: 'IBM Plex Mono', size: 10 }, stepSize: 1 },
+                grid: { color: 'rgba(232,238,242,0.08)' },
+                title: { display: true, text: 'Avg. wellbeing (1–5)', color: 'rgba(232,238,242,0.5)', font: { family: 'IBM Plex Mono', size: 10 } }
+              }
+            }
+          }
+        });
+      } else {
+        chartWrap.style.display = 'none';
+      }
+
+      // ----- Latest-week snapshot strip, for quick "where do we stand today" context -----
       if (!latestRows.length) {
-        container.innerHTML = '<div class="hint-empty">No wellness check-ins logged yet — they go out twice a week.</div>';
+        cardContainer.innerHTML = '<div class="hint-empty">No wellness check-ins logged yet — they go out twice a week.</div>';
         return;
       }
 
@@ -1190,12 +1469,165 @@
         );
       }).join('');
 
-      container.innerHTML =
-        '<div class="wellness-week-label">Week of ' + escapeHtml(latestWeek) + '</div>' +
+      cardContainer.innerHTML =
+        '<div class="wellness-week-label">Snapshot — week of ' + escapeHtml(latestWeek) + '</div>' +
         cards +
-        '<div class="wellness-footnote">Averages are computed weekly per year of study from anonymous-to-classmates check-ins. Individual ratings and comments are never shown here — see the Wellness CheckIns sheet directly if you\'re a class admin who needs to follow up.</div>';
+        '<div class="wellness-footnote">Averages are computed weekly per year of study from anonymous-to-classmates check-ins, sent to every registered student regardless of activation status. Individual ratings and comments are never shown here — see the Wellness CheckIns sheet directly if you\'re a class admin who needs to follow up.</div>';
     } catch (err) {
-      container.innerHTML = '<div class="hint-empty">Couldn\'t load wellness data right now.</div>';
+      chartWrap.style.display = 'none';
+      cardContainer.innerHTML = '<div class="hint-empty">Couldn\'t load wellness data right now.</div>';
+    }
+  }
+
+  /* ---------- WEEKLY INSPIRATION (motivation quote + book of the week) ---------- */
+  // Pulls the "Weekly Inspiration" sheet and shows whichever row has the
+  // latest "Week Starting" date. Class admins add a new row each week
+  // (directly in Sheets, or via the addWeeklyInspiration action if wired
+  // up in admin.html).
+
+  async function loadWeeklyInspiration() {
+    const container = document.getElementById('inspirationCard');
+    try {
+      const res = await fetch(WEB_APP_URL + '?action=getWeeklyInspiration');
+      const result = await res.json();
+
+      if (!result.success || !Array.isArray(result.data) || !result.data.length) {
+        container.innerHTML = '<div class="hint-empty">No weekly inspiration posted yet — check back soon.</div>';
+        return;
+      }
+
+      const rows = result.data.slice().sort((a, b) =>
+        String(a['Week Starting']).localeCompare(String(b['Week Starting']))
+      );
+      const latest = rows[rows.length - 1];
+
+      const quote = String(latest['Motivation Quote'] || '').trim();
+      const author = String(latest['Motivation Author'] || '').trim();
+      const motivationHtml = quote
+        ? '<blockquote>&ldquo;' + escapeHtml(quote) + '&rdquo;' +
+          (author ? '<span class="attr">&mdash; ' + escapeHtml(author) + '</span>' : '') +
+          '</blockquote>'
+        : '<p class="hint-empty" style="padding:0;">No motivation quote set for this week.</p>';
+
+      const bookTitle = String(latest['Book Title'] || '').trim();
+      const bookHtml = bookTitle
+        ? '<div class="book-rec">' +
+            '<span class="hint-tag">Book of the week</span>' +
+            '<h4>' + escapeHtml(bookTitle) + (latest['Book Author'] ? ' — ' + escapeHtml(latest['Book Author']) : '') + '</h4>' +
+            (latest['Book Link or Note'] ? '<p>' + escapeHtml(latest['Book Link or Note']) + '</p>' : '') +
+          '</div>'
+        : '<div class="book-rec"><span class="hint-tag">Book of the week</span><p>No pick set for this week.</p></div>';
+
+      container.innerHTML =
+        '<div class="wellness-week-label">Week of ' + escapeHtml(latest['Week Starting'] || '') + '</div>' +
+        '<div class="inspiration-body">' + motivationHtml + bookHtml + '</div>';
+    } catch (err) {
+      container.innerHTML = '<div class="hint-empty">Couldn\'t load this week\'s inspiration right now.</div>';
+    }
+  }
+
+  /* ---------- STUDENT DISTRIBUTION (live pie chart) ---------- */
+  // Pulls a small aggregate-only headcount-per-year payload from
+  // getYearDistribution_() in api.gs — no student names/emails ever come
+  // down for this. Counts every registration regardless of Status or
+  // Payment Status. Polls periodically so the chart stays "live" as new
+  // students register, without needing a page refresh.
+
+  let distributionChartInstance = null;
+  const DISTRIBUTION_POLL_MS = 30000;
+
+  async function loadYearDistribution() {
+    const panel = document.getElementById('distributionPanel');
+    try {
+      const res = await fetch(WEB_APP_URL + '?action=getYearDistribution');
+      const result = await res.json();
+
+      if (!result.success || !result.data) {
+        panel.innerHTML = '<div class="hint-empty">Couldn\'t load student distribution right now.</div>';
+        return;
+      }
+
+      const total = Number(result.data.total) || 0;
+      const byYear = Array.isArray(result.data.byYear) ? result.data.byYear : [];
+
+      if (!total) {
+        panel.innerHTML = '<div class="hint-empty">No students registered yet — be the first above.</div>';
+        return;
+      }
+
+      // Ensure the chart canvas + legend exist (only rebuild the DOM once).
+      if (!document.getElementById('distributionChart')) {
+        panel.innerHTML =
+          '<div class="distribution-chart-box"><canvas id="distributionChart" role="img" aria-label="Pie chart of student distribution across the five years of study"></canvas></div>' +
+          '<div><div class="distribution-legend" id="distributionLegend"></div>' +
+          '<div class="distribution-total" id="distributionTotal"></div></div>';
+      }
+
+      const canvas = document.getElementById('distributionChart');
+      const legend = document.getElementById('distributionLegend');
+      const totalEl = document.getElementById('distributionTotal');
+
+      const labels = byYear.map(r => r.year);
+      const counts = byYear.map(r => r.count);
+      const colors = byYear.map(r => WELLNESS_YEAR_COLORS[r.year] || '#4C86AE');
+
+      if (typeof Chart !== 'undefined') {
+        if (distributionChartInstance) {
+          distributionChartInstance.data.labels = labels;
+          distributionChartInstance.data.datasets[0].data = counts;
+          distributionChartInstance.update();
+        } else {
+          distributionChartInstance = new Chart(canvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+              labels: labels,
+              datasets: [{
+                data: counts,
+                backgroundColor: colors,
+                borderColor: '#10243E',
+                borderWidth: 2,
+                hoverOffset: 6
+              }]
+            },
+            options: {
+              responsive: true,
+              cutout: '58%',
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  titleFont: { family: 'IBM Plex Mono' },
+                  bodyFont: { family: 'IBM Plex Mono' },
+                  callbacks: {
+                    label: (ctx) => {
+                      const val = ctx.parsed || 0;
+                      const pct = total ? ((val / total) * 100).toFixed(1) : '0.0';
+                      return ' ' + ctx.label + ': ' + val + ' (' + pct + '%)';
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
+      }
+
+      legend.innerHTML = byYear.map((r, i) => {
+        const pct = total ? ((r.count / total) * 100).toFixed(1) : '0.0';
+        return (
+          '<div class="distribution-row">' +
+            '<span class="distribution-swatch" style="background:' + colors[i] + ';"></span>' +
+            '<span class="dist-year">' + escapeHtml(r.year) + '</span>' +
+            '<span class="dist-count">' + r.count + '</span>' +
+            '<span class="dist-pct">' + pct + '%</span>' +
+          '</div>'
+        );
+      }).join('');
+
+      totalEl.innerHTML =
+        '<span>' + total + ' student' + (total === 1 ? '' : 's') + ' registered across all years</span>' +
+        '<span>updates every 30s</span>';
+    } catch (err) {
+      panel.innerHTML = '<div class="hint-empty">Couldn\'t load student distribution right now.</div>';
     }
   }
 
@@ -1210,6 +1642,9 @@
 
   loadEventHints();
   loadWellnessDashboard();
+  loadWeeklyInspiration();
+  loadYearDistribution();
+  setInterval(loadYearDistribution, DISTRIBUTION_POLL_MS);
   updateActivationBanner();
 </script>
 
