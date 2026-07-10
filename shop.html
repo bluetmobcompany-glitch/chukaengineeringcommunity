@@ -814,6 +814,9 @@
       `;
     }).join('');
 
+    // Note: this total is just a live preview for the shopper. The
+    // authoritative total is computed server-side from Shop Inventory
+    // prices when the order is actually placed — see placeOrderBtn below.
     cartCount.textContent = `${count} item${count === 1 ? '' : 's'}`;
     cartTotal.textContent = `KES ${total}`;
     checkoutToggle.disabled = false;
@@ -843,9 +846,9 @@
       return;
     }
 
-    const itemsSummary = Array.from(cart.values()).map(({ item, qty }) => `${item['Item Name']} x${qty}`).join('; ');
-    const total = Array.from(cart.values()).reduce((sum, { item, qty }) => sum + (Number(item['Price (KES)']) || 0) * qty, 0);
-    const quantity = Array.from(cart.values()).reduce((sum, { qty }) => sum + qty, 0);
+    // Only itemId + qty are sent — price/total is looked up and computed
+    // server-side from the Shop Inventory sheet, not trusted from the client.
+    const items = Array.from(cart.entries()).map(([id, { qty }]) => ({ itemId: id, qty }));
 
     checkoutStatus.textContent = 'Placing order…';
     checkoutStatus.removeAttribute('data-state');
@@ -855,12 +858,12 @@
         method: 'POST',
         body: JSON.stringify({
           action: 'placeOrder',
-          data: { buyerName, buyerPhone, buyerEmail, items: itemsSummary, quantity, total, paymentMethod }
+          data: { buyerName, buyerPhone, buyerEmail, items, paymentMethod }
         })
       });
       const result = await res.json();
       if (result.success) {
-        checkoutStatus.textContent = `Order placed (${result.orderId}). You'll be contacted to complete payment.`;
+        checkoutStatus.textContent = `Order placed (${result.orderId}) — total KES ${result.total}. You'll be contacted to complete payment.`;
         checkoutStatus.setAttribute('data-state', 'ok');
         cart.clear();
         renderCart();
