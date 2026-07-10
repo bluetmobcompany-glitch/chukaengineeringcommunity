@@ -514,6 +514,78 @@
     padding: 24px 4px;
   }
 
+  /* ---------- WELLNESS DASHBOARD ---------- */
+  /* Reuses .hint-grid as the outer grid so it matches the events-hint
+     styling; these classes style the cards/labels inside it. Aggregate
+     only — averages and counts per year, never an individual response. */
+
+  .wellness-week-label {
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    background: var(--blueprint-navy);
+    padding: 14px 22px 0;
+  }
+
+  .wellness-card {
+    background: var(--blueprint-navy);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .wellness-year {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.02rem;
+  }
+
+  .wellness-bar-track {
+    height: 8px;
+    background: rgba(232,238,242,0.1);
+    border: 1px solid rgba(232,238,242,0.2);
+  }
+
+  .wellness-bar-fill {
+    height: 100%;
+    transition: width 0.4s ease;
+  }
+
+  .wellness-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: rgba(232,238,242,0.7);
+  }
+
+  .wellness-meta .wellness-avg {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--paper);
+  }
+
+  .wellness-flag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    color: var(--copper);
+  }
+
+  .wellness-footnote {
+    grid-column: 1 / -1;
+    background: var(--blueprint-navy);
+    padding: 14px 22px 20px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: rgba(232,238,242,0.45);
+  }
+
   /* ---------- QUICK LINKS ---------- */
 
   .link-grid {
@@ -780,6 +852,18 @@
     </div>
   </section>
 
+  <section id="wellness">
+    <div class="section-head">
+      <span class="sheet-no">—</span>
+      <h2>Community wellness</h2>
+      <span class="section-sub">Aggregate only — no individual response shown</span>
+    </div>
+
+    <div class="hint-grid" id="wellnessDashboard">
+      <div class="hint-empty">Loading wellness check-in data…</div>
+    </div>
+  </section>
+
   <section id="explore">
     <div class="section-head">
       <span class="sheet-no">—</span>
@@ -834,6 +918,11 @@
 
 <script>
   // Replace with your deployed Apps Script Web App URL (see api.gs).
+  // IMPORTANT: this must be the SAME /exec URL as WEB_APP_URL in api.gs,
+  // ACTIVATION_WEB_APP_URL in pesapal.gs, and WELLNESS_WEB_APP_URL in
+  // wellness.gs. If any of those drift apart, features tied to that
+  // mismatched file (activation, wellness replies, etc.) will silently
+  // fail even though the code itself is correct.
   const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby4kzZ_2064Bnzu8CusDtfAQOIFl3ZmPJtBEI0o_vocJPMnrTNeDaT6s9suE2bpmU6MeQ/exec';
 
   /* ---------- MOBILE NAV TOGGLE ---------- */
@@ -1043,6 +1132,73 @@
     }
   }
 
+  /* ---------- WELLNESS DASHBOARD ---------- */
+  // Pulls the pre-aggregated "Wellness Summary" sheet (built server-side
+  // by rebuildWellnessSummary() in wellness.gs) so this page only ever
+  // sees weekly averages per year — never a single student's rating or
+  // comment.
+
+  const WELLNESS_YEAR_ORDER = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+
+  function wellnessColorFor(avg) {
+    if (avg >= 4) return 'var(--ok)';
+    if (avg >= 3) return 'var(--blueprint-line)';
+    if (avg >= 2) return 'var(--copper)';
+    return 'var(--err)';
+  }
+
+  async function loadWellnessDashboard() {
+    const container = document.getElementById('wellnessDashboard');
+    try {
+      const res = await fetch(WEB_APP_URL + '?action=getWellnessSummary');
+      const result = await res.json();
+
+      if (!result.success || !Array.isArray(result.data) || !result.data.length) {
+        container.innerHTML = '<div class="hint-empty">No wellness check-ins logged yet — they go out twice a week.</div>';
+        return;
+      }
+
+      const rows = result.data;
+      const weeks = [...new Set(rows.map(r => r['Week Starting']))].sort();
+      const latestWeek = weeks[weeks.length - 1];
+      const latestRows = rows
+        .filter(r => r['Week Starting'] === latestWeek)
+        .sort((a, b) => WELLNESS_YEAR_ORDER.indexOf(a['Year of Study']) - WELLNESS_YEAR_ORDER.indexOf(b['Year of Study']));
+
+      if (!latestRows.length) {
+        container.innerHTML = '<div class="hint-empty">No wellness check-ins logged yet — they go out twice a week.</div>';
+        return;
+      }
+
+      const cards = latestRows.map(r => {
+        const avg = Number(r['Average Wellbeing Rating']) || 0;
+        const responses = Number(r['Responses Received']) || 0;
+        const followUps = Number(r['Follow-Ups Flagged']) || 0;
+        const pct = Math.max(4, Math.min(100, (avg / 5) * 100));
+        const color = wellnessColorFor(avg);
+
+        return (
+          '<div class="wellness-card">' +
+            '<div class="wellness-year">' + escapeHtml(r['Year of Study'] || '') + '</div>' +
+            '<div class="wellness-bar-track"><div class="wellness-bar-fill" style="width:' + pct + '%; background:' + color + ';"></div></div>' +
+            '<div class="wellness-meta">' +
+              '<span class="wellness-avg">' + avg.toFixed(1) + ' / 5</span>' +
+              '<span>' + responses + ' response' + (responses === 1 ? '' : 's') + '</span>' +
+            '</div>' +
+            (followUps > 0 ? '<div class="wellness-flag">' + followUps + ' flagged for follow-up</div>' : '') +
+          '</div>'
+        );
+      }).join('');
+
+      container.innerHTML =
+        '<div class="wellness-week-label">Week of ' + escapeHtml(latestWeek) + '</div>' +
+        cards +
+        '<div class="wellness-footnote">Averages are computed weekly per year of study from anonymous-to-classmates check-ins. Individual ratings and comments are never shown here — see the Wellness CheckIns sheet directly if you\'re a class admin who needs to follow up.</div>';
+    } catch (err) {
+      container.innerHTML = '<div class="hint-empty">Couldn\'t load wellness data right now.</div>';
+    }
+  }
+
   function truncate(text, max) {
     return text.length > max ? text.slice(0, max).trim() + '…' : text;
   }
@@ -1053,6 +1209,7 @@
   }
 
   loadEventHints();
+  loadWellnessDashboard();
   updateActivationBanner();
 </script>
 
