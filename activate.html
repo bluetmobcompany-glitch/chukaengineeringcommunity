@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activate Account — Chuka Engineering Community</title>
+<link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blueprint-navy: #10243E;
+    --blueprint-blue: #2E6F9E;
+    --blueprint-line: #4C86AE;
+    --paper: #E8EEF2;
+    --copper: #C97B3D;
+    --ink: #0B1B2B;
+    --ok: #3F8F5F;
+    --err: #B4453A;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background:
+      repeating-linear-gradient(0deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      var(--blueprint-navy);
+    color: var(--paper);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  a { color: var(--copper); }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(16,36,62,0.92);
+    border-bottom: 1px solid rgba(232,238,242,0.15);
+  }
+  .brandmark { display: flex; align-items: center; gap: 12px; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; text-decoration: none; color: var(--paper); }
+  .brandmark .glyph { width: 34px; height: 34px; border: 2px solid var(--copper); display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--paper); }
+  .brandmark .glyph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  nav a { font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase; text-decoration: none; color: var(--paper); opacity: 0.8; }
+
+  main { max-width: 620px; margin: 0 auto; padding: 56px 24px 80px; }
+
+  .eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blueprint-line); margin-bottom: 14px; }
+  h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 14px; }
+  p.lede { color: rgba(232,238,242,0.8); margin-bottom: 32px; max-width: 52ch; }
+
+  .panel { background: rgba(232,238,242,0.04); border: 1px solid rgba(232,238,242,0.3); padding: 28px; margin-bottom: 24px; }
+
+  .lookup-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .lookup-row input {
+    flex: 1; min-width: 220px; background: transparent; border: none;
+    border-bottom: 1px solid rgba(232,238,242,0.35); color: var(--paper);
+    font-family: var(--font-body); font-size: 1rem; padding: 10px 2px; outline: none;
+  }
+  .lookup-row input:focus { border-color: var(--copper); }
+
+  button.commit {
+    font-family: var(--font-mono); font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--copper); color: var(--blueprint-navy); border: none; padding: 13px 24px;
+    cursor: pointer; font-weight: 600;
+  }
+  button.commit:hover { filter: brightness(1.1); }
+  button.commit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status-card { margin-top: 22px; font-family: var(--font-mono); font-size: 0.88rem; }
+  .status-card .tag {
+    display: inline-block; padding: 4px 10px; font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.06em; margin-bottom: 10px; border: 1px solid currentColor;
+  }
+  .tag.ok { color: var(--ok); }
+  .tag.warn { color: var(--copper); }
+  .tag.err { color: var(--err); }
+
+  .row-msg { font-family: var(--font-mono); font-size: 0.85rem; min-height: 1.2em; margin-top: 14px; }
+  .row-msg.err { color: var(--err); }
+  .row-msg.ok { color: var(--ok); }
+
+  .fee-line { font-family: var(--font-mono); font-size: 0.95rem; margin: 18px 0; color: var(--paper); }
+  .fee-line strong { color: var(--copper); }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brandmark">
+    <span class="glyph"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s" alt="Chuka University logo"></span>
+    CHUKA ENGINEERING COMMUNITY
+  </a>
+  <nav><a href="index.html">&larr; Back to site</a></nav>
+</header>
+
+<main>
+  <p class="eyebrow">Account activation</p>
+  <h1>Keep your access active</h1>
+  <p class="lede">
+    Registration gives you 7 days of free access. After that, a one-time
+    KES 100 activation fee (M-Pesa or card, via PesaPal) keeps your account
+    active for good — no recurring charges.
+  </p>
+
+  <div class="panel">
+    <div class="lookup-row">
+      <input type="text" id="regInput" placeholder="Your registration number or email">
+      <button type="button" class="commit" id="checkBtn">Check status</button>
+    </div>
+    <div id="statusArea" class="status-card"></div>
+  </div>
+</main>
+
+<script>
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzY542X-KgOIN9GGLI2UfWC4PTXu9coGvn7-bd9iyaD8cqSdcvqsE7-KRj7RHeGF9VTpw/exec';
+
+  const regInput = document.getElementById('regInput');
+  const checkBtn = document.getElementById('checkBtn');
+  const statusArea = document.getElementById('statusArea');
+
+  // Pre-fill from a reg= query param (e.g. from a reminder email link) or
+  // whatever activation-gate.js last remembered on this browser.
+  const params = new URLSearchParams(window.location.search);
+  const remembered = params.get('reg') || localStorage.getItem('cec_regnumber') || '';
+  if (remembered) regInput.value = remembered;
+
+  function escapeHtml(v) {
+    if (v === undefined || v === null) return '';
+    return String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  async function checkStatus() {
+    const q = regInput.value.trim();
+    if (!q) {
+      statusArea.innerHTML = '<div class="row-msg err">Enter your registration number or email first.</div>';
+      return;
+    }
+
+    statusArea.innerHTML = '<div class="row-msg">Checking…</div>';
+    checkBtn.disabled = true;
+
+    try {
+      const res = await fetch(WEB_APP_URL + '?action=checkActivation&regNumber=' + encodeURIComponent(q));
+      const result = await res.json();
+
+      if (!result.success) {
+        statusArea.innerHTML = '<div class="row-msg err">' + escapeHtml(result.error || 'Something went wrong.') + '</div>';
+        return;
+      }
+
+      const info = result.data;
+      if (!info.found) {
+        statusArea.innerHTML = '<div class="row-msg err">No registration found for that reg. number/email. Register on the main site first.</div>';
+        return;
+      }
+
+      localStorage.setItem('cec_regnumber', info.regNumber);
+
+      if (info.paid) {
+        statusArea.innerHTML =
+          '<div class="tag ok">Activated</div>' +
+          '<div>' + escapeHtml(info.fullName) + ' &middot; ' + escapeHtml(info.year) + '</div>' +
+          '<div style="margin-top:8px;color:rgba(232,238,242,0.7);">Your account is fully active. Nothing more to do.</div>';
+        return;
+      }
+
+      const feeLine = '<div class="fee-line">Activation fee: <strong>KES ' + info.feeKes + '</strong> (one-time)</div>';
+
+      if (info.mustPayNow) {
+        statusArea.innerHTML =
+          '<div class="tag err">Grace period ended</div>' +
+          '<div>' + escapeHtml(info.fullName) + ' &middot; ' + escapeHtml(info.year) + '</div>' +
+          feeLine +
+          '<button type="button" class="commit" id="payBtn" style="margin-top:6px;">Pay KES ' + info.feeKes + ' via PesaPal</button>' +
+          '<div class="row-msg" id="payMsg"></div>';
+      } else {
+        statusArea.innerHTML =
+          '<div class="tag warn">' + info.daysLeft + ' day(s) of free access left</div>' +
+          '<div>' + escapeHtml(info.fullName) + ' &middot; ' + escapeHtml(info.year) + '</div>' +
+          '<div style="margin-top:6px;color:rgba(232,238,242,0.7);">Free access until ' + escapeHtml(info.graceDeadline) + '.</div>' +
+          feeLine +
+          '<button type="button" class="commit" id="payBtn" style="margin-top:6px;">Activate now anyway (KES ' + info.feeKes + ')</button>' +
+          '<div class="row-msg" id="payMsg"></div>';
+      }
+
+      document.getElementById('payBtn').addEventListener('click', () => startPayment(info.regNumber));
+    } catch (err) {
+      statusArea.innerHTML = '<div class="row-msg err">Network error — try again in a moment.</div>';
+    } finally {
+      checkBtn.disabled = false;
+    }
+  }
+
+  async function startPayment(regNumber) {
+    const payBtn = document.getElementById('payBtn');
+    const payMsg = document.getElementById('payMsg');
+    payBtn.disabled = true;
+    payMsg.className = 'row-msg';
+    payMsg.textContent = 'Starting secure PesaPal checkout…';
+
+    try {
+      const res = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'initiateActivationPayment', data: { regNumber } })
+      });
+      const result = await res.json();
+
+      if (result.success && result.redirectUrl) {
+        window.location.href = result.redirectUrl;
+      } else {
+        payMsg.classList.add('err');
+        payMsg.textContent = result.error || 'Could not start payment. Please try again shortly.';
+        payBtn.disabled = false;
+      }
+    } catch (err) {
+      payMsg.classList.add('err');
+      payMsg.textContent = 'Network error — please try again.';
+      payBtn.disabled = false;
+    }
+  }
+
+  checkBtn.addEventListener('click', checkStatus);
+  regInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); checkStatus(); } });
+
+  if (remembered) checkStatus();
+</script>
+
+</body>
+</html>
