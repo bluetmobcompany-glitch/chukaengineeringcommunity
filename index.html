@@ -1121,7 +1121,15 @@
   // wellness.gs. If any of those drift apart, features tied to that
   // mismatched file (activation, wellness replies, etc.) will silently
   // fail even though the code itself is correct.
-  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby4kzZ_2064Bnzu8CusDtfAQOIFl3ZmPJtBEI0o_vocJPMnrTNeDaT6s9suE2bpmU6MeQ/exec';
+  //
+  // NOTE: if you edit api.gs (e.g. adding new doGet/doPost actions like
+  // getYearDistribution or getWeeklyInspiration) you must redeploy the
+  // web app — Deploy > Manage deployments > edit the active deployment >
+  // Version: New version > Deploy. Apps Script does NOT auto-publish
+  // editor changes to the live /exec URL; until you redeploy, the live
+  // endpoint keeps serving the old code and unknown actions will return
+  // { success: false, error: 'Unknown or missing action' }.
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzlioiKzmNeuuaP6FTXhITZJa9HOVv0h6mgzDWTnjqaTjl5UZid0LWM7seHNIwuzHi_/exec';
 
   /* ---------- MOBILE NAV TOGGLE ---------- */
 
@@ -1481,9 +1489,15 @@
 
   /* ---------- WEEKLY INSPIRATION (motivation quote + book of the week) ---------- */
   // Pulls the "Weekly Inspiration" sheet and shows whichever row has the
-  // latest "Week Starting" date. Class admins add a new row each week
+  // latest "Week Of" date. Class admins add a new row each week
   // (directly in Sheets, or via the addWeeklyInspiration action if wired
   // up in admin.html).
+  //
+  // NOTE: the sheet's headers were shortened in setup.gs — 'Week Starting'
+  // -> 'Week Of', 'Motivation Quote' -> 'Quote', 'Motivation Author' ->
+  // 'Quote Author', 'Book Title' -> 'Book', 'Book Link or Note' ->
+  // 'Book Link' — so this reads the JSON by those current header names,
+  // not the old ones (which no longer exist in the row objects at all).
 
   async function loadWeeklyInspiration() {
     const container = document.getElementById('inspirationCard');
@@ -1497,29 +1511,29 @@
       }
 
       const rows = result.data.slice().sort((a, b) =>
-        String(a['Week Starting']).localeCompare(String(b['Week Starting']))
+        String(a['Week Of']).localeCompare(String(b['Week Of']))
       );
       const latest = rows[rows.length - 1];
 
-      const quote = String(latest['Motivation Quote'] || '').trim();
-      const author = String(latest['Motivation Author'] || '').trim();
+      const quote = String(latest['Quote'] || '').trim();
+      const author = String(latest['Quote Author'] || '').trim();
       const motivationHtml = quote
         ? '<blockquote>&ldquo;' + escapeHtml(quote) + '&rdquo;' +
           (author ? '<span class="attr">&mdash; ' + escapeHtml(author) + '</span>' : '') +
           '</blockquote>'
         : '<p class="hint-empty" style="padding:0;">No motivation quote set for this week.</p>';
 
-      const bookTitle = String(latest['Book Title'] || '').trim();
+      const bookTitle = String(latest['Book'] || '').trim();
       const bookHtml = bookTitle
         ? '<div class="book-rec">' +
             '<span class="hint-tag">Book of the week</span>' +
             '<h4>' + escapeHtml(bookTitle) + (latest['Book Author'] ? ' — ' + escapeHtml(latest['Book Author']) : '') + '</h4>' +
-            (latest['Book Link or Note'] ? '<p>' + escapeHtml(latest['Book Link or Note']) + '</p>' : '') +
+            (latest['Book Link'] ? '<p>' + escapeHtml(latest['Book Link']) + '</p>' : '') +
           '</div>'
         : '<div class="book-rec"><span class="hint-tag">Book of the week</span><p>No pick set for this week.</p></div>';
 
       container.innerHTML =
-        '<div class="wellness-week-label">Week of ' + escapeHtml(latest['Week Starting'] || '') + '</div>' +
+        '<div class="wellness-week-label">Week of ' + escapeHtml(latest['Week Of'] || '') + '</div>' +
         '<div class="inspiration-body">' + motivationHtml + bookHtml + '</div>';
     } catch (err) {
       container.innerHTML = '<div class="hint-empty">Couldn\'t load this week\'s inspiration right now.</div>';
