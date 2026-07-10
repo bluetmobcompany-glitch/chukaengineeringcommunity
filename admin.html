@@ -407,6 +407,61 @@
     display: none;
   }
 
+  /* ---------- GROUPS TAB ---------- */
+  .group-row-card {
+    border: 1px solid rgba(232,238,242,0.25);
+    padding: 16px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .group-row-card .group-row-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 10px;
+  }
+  .group-row-card input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 8px 2px;
+    margin-bottom: 12px;
+    outline: none;
+  }
+  .group-row-card input:focus { border-color: var(--copper); }
+  .group-row-card .remove-group-row { margin-top: 2px; }
+
+  .group-links-output {
+    margin-top: 24px;
+    border: 1px dashed rgba(232,238,242,0.35);
+    padding: 18px;
+    display: none;
+  }
+  .group-links-output h4 {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+  .group-link-item {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ok);
+    word-break: break-all;
+    margin-bottom: 10px;
+  }
+  .group-link-item .who {
+    color: var(--paper);
+    font-family: var(--font-body);
+    display: block;
+    margin-bottom: 2px;
+  }
+
   footer {
     border-top: 1px solid rgba(232,238,242,0.2);
     padding: 32px;
@@ -495,10 +550,13 @@
     <h1>Class admin console.</h1>
     <p class="lede">
       Sign in with the username and password your class or club was issued
-      to add timetable entries, exam and CAT slots, personnel and sports
-      fixtures — every entry is written straight to the community's Google
-      Sheet. Your password never leaves your browser in plain text — it's
-      hashed before it's sent.
+      to add timetable entries, exam and CAT slots, personnel, sports
+      fixtures, and project groups — every entry is written straight to the
+      community's Google Sheet. Your password never leaves your browser in
+      plain text — it's hashed before it's sent.
+    </p>
+    <p style="margin-top: 18px;">
+      <a href="#groups" id="groupsShortcutLink" style="display:inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--copper); border-bottom: 1px solid var(--copper); padding-bottom: 2px; text-decoration: none;">Set up groups for your class &rarr;</a>
     </p>
   </div>
 
@@ -571,6 +629,7 @@
         <button type="button" class="tab-btn" data-panel="panel-cat">CAT timetable</button>
         <button type="button" class="tab-btn" data-panel="panel-personnel">Personnel</button>
         <button type="button" class="tab-btn" data-panel="panel-sports">Sports</button>
+        <button type="button" class="tab-btn" data-panel="panel-groups">Groups</button>
       </div>
 
       <!-- CLASS TIMETABLE -->
@@ -898,6 +957,41 @@
           </div>
         </form>
       </div>
+
+      <!-- GROUPS -->
+      <div class="panel" id="panel-groups">
+        <form class="spec-sheet" id="groupsForm" novalidate>
+          <div class="field-row">
+            <div class="field-index">01</div>
+            <div class="field-body">
+              <label for="maxGroupSize">Max students per group</label>
+              <input type="number" id="maxGroupSize" name="maxGroupSize" min="2" max="50" placeholder="e.g. 5" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">02</div>
+            <div class="field-body">
+              <label>Groups &amp; leaders</label>
+              <p style="font-size:0.82rem; color: rgba(232,238,242,0.65); margin-bottom:14px;">
+                One row per group. Each leader gets emailed a private link they can forward
+                to whoever they want in their group — only classmates registered in your
+                class can join, and only up to the max size above.
+              </p>
+              <div id="groupRows"></div>
+              <button type="button" class="ghost" id="addGroupRowBtn">+ Add another group</button>
+            </div>
+          </div>
+          <div class="submit-row">
+            <span class="form-status" id="status-groups" role="status" aria-live="polite"></span>
+            <button type="submit" class="commit">Create groups &amp; email leaders</button>
+          </div>
+        </form>
+
+        <div class="group-links-output" id="groupLinksOutput">
+          <h4>Join links (backup — in case an email doesn't go through)</h4>
+          <div id="groupLinksList"></div>
+        </div>
+      </div>
     </div>
   </section>
 </main>
@@ -1026,6 +1120,7 @@
     workspace.style.display = 'block';
     loginSection.style.display = 'none';
     document.getElementById('password').value = '';
+    goToGroupsTabIfRequested();
   }
 
   document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -1038,14 +1133,42 @@
   });
 
   // ---------- Tabs ----------
+  function activateTab(panelId) {
+    const btn = document.querySelector('.tab-btn[data-panel="' + panelId + '"]');
+    const panel = document.getElementById(panelId);
+    if (!btn || !panel) return;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    panel.classList.add('active');
+  }
+
   document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.panel).classList.add('active');
-    });
+    btn.addEventListener('click', () => activateTab(btn.dataset.panel));
   });
+
+  // ---------- "Set up groups" shortcut link (admin.html#groups) ----------
+  // Works two ways: clicking the hero link while already signed in jumps
+  // straight to the Groups tab; visiting admin.html#groups directly opens
+  // the Groups tab automatically as soon as the admin signs in.
+  function goToGroupsTabIfRequested() {
+    if (window.location.hash === '#groups' && workspace.style.display === 'block') {
+      activateTab('panel-groups');
+      document.getElementById('panel-groups').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  document.getElementById('groupsShortcutLink').addEventListener('click', (e) => {
+    if (workspace.style.display === 'block') {
+      e.preventDefault();
+      activateTab('panel-groups');
+      document.getElementById('panel-groups').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    // If not signed in yet, let the anchor jump to the login form as normal;
+    // goToGroupsTabIfRequested() will pick it up right after sign-in.
+  });
+
+  window.addEventListener('hashchange', goToGroupsTabIfRequested);
 
   // ---------- Data-entry forms ----------
   // Each form posts straight to the Apps Script Web App, which appends a
@@ -1088,6 +1211,101 @@
       }
     });
   });
+
+  // ---------- Groups (create groups for the admin's own class, email leaders) ----------
+  let groupRowCount = 0;
+  const groupRowsContainer = document.getElementById('groupRows');
+  const addGroupRowBtn = document.getElementById('addGroupRowBtn');
+  const groupsForm = document.getElementById('groupsForm');
+  const groupLinksOutput = document.getElementById('groupLinksOutput');
+  const groupLinksList = document.getElementById('groupLinksList');
+
+  function addGroupRow() {
+    groupRowCount++;
+    const card = document.createElement('div');
+    card.className = 'group-row-card';
+    card.innerHTML = `
+      <div class="group-row-label">Group ${groupRowCount}</div>
+      <input type="text" class="group-name" placeholder="Group name (optional, e.g. Group A)">
+      <input type="text" class="leader-name" placeholder="Leader full name" required>
+      <input type="email" class="leader-email" placeholder="Leader email" required>
+      <button type="button" class="ghost remove-group-row">Remove group</button>
+    `;
+    card.querySelector('.remove-group-row').addEventListener('click', () => card.remove());
+    groupRowsContainer.appendChild(card);
+  }
+
+  addGroupRowBtn.addEventListener('click', addGroupRow);
+  addGroupRow(); // start with one group row
+
+  groupsForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!session) return;
+
+    const statusEl = document.getElementById('status-groups');
+    const maxGroupSize = document.getElementById('maxGroupSize').value;
+
+    const groups = Array.from(groupRowsContainer.children).map(card => ({
+      groupName: card.querySelector('.group-name').value.trim(),
+      leaderName: card.querySelector('.leader-name').value.trim(),
+      leaderEmail: card.querySelector('.leader-email').value.trim()
+    })).filter(g => g.leaderName && g.leaderEmail);
+
+    if (!groups.length) {
+      setStatus(statusEl, 'Add at least one group with a leader name and email.', 'err');
+      return;
+    }
+
+    const submitBtn = groupsForm.querySelector('button.commit');
+    setStatus(statusEl, 'Creating groups and emailing leaders…', '');
+    submitBtn.disabled = true;
+    groupLinksOutput.style.display = 'none';
+
+    try {
+      const res = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'createGroups',
+          data: {
+            username: session.username,
+            passwordHash: session.passwordHash,
+            maxGroupSize,
+            groups
+          }
+        })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        setStatus(statusEl, result.message || 'Groups created.', 'ok');
+        showGroupLinks(result.groups || []);
+        // Reset just the leader rows, keep the max-size setting for convenience
+        groupRowsContainer.innerHTML = '';
+        groupRowCount = 0;
+        addGroupRow();
+      } else {
+        setStatus(statusEl, result.error || 'Something went wrong.', 'err');
+      }
+    } catch (err) {
+      setStatus(statusEl, 'Network error — check the Web App URL is set.', 'err');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  function showGroupLinks(groups) {
+    if (!groups.length) {
+      groupLinksOutput.style.display = 'none';
+      return;
+    }
+    groupLinksList.innerHTML = groups.map(g => `
+      <div class="group-link-item">
+        <span class="who">${g.groupName} — leader: ${g.leaderName} (${g.leaderEmail})</span>
+        ${g.joinLink}
+      </div>
+    `).join('');
+    groupLinksOutput.style.display = 'block';
+  }
 
   function setStatus(el, message, state) {
     el.textContent = message;
