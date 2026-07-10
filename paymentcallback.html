@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Status — Chuka Engineering Community</title>
+<link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blueprint-navy: #10243E; --copper: #C97B3D; --paper: #E8EEF2;
+    --ok: #3F8F5F; --err: #B4453A;
+    --font-display: 'Space Grotesk', sans-serif; --font-body: 'IBM Plex Sans', sans-serif; --font-mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--blueprint-navy); color: var(--paper); font-family: var(--font-body);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .card { max-width: 460px; text-align: center; border: 1px solid rgba(232,238,242,0.3); padding: 40px 32px; background: rgba(232,238,242,0.04); }
+  .tag { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 5px 12px; border: 1px solid currentColor; display: inline-block; margin-bottom: 18px; }
+  .tag.ok { color: var(--ok); }
+  .tag.err { color: var(--err); }
+  .tag.pending { color: var(--copper); }
+  h1 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 12px; }
+  p { color: rgba(232,238,242,0.75); margin-bottom: 22px; }
+  a.commit {
+    display: inline-block; font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase;
+    letter-spacing: 0.06em; background: var(--copper); color: var(--blueprint-navy); text-decoration: none;
+    padding: 12px 22px; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div class="tag pending">Checking…</div>
+  <h1>Confirming your payment</h1>
+  <p>Give us a moment while we confirm this with PesaPal.</p>
+</div>
+
+<script>
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzY542X-KgOIN9GGLI2UfWC4PTXu9coGvn7-bd9iyaD8cqSdcvqsE7-KRj7RHeGF9VTpw/exec';
+  const card = document.getElementById('card');
+
+  function render(tagClass, tagText, title, message, showActivateLink) {
+    card.innerHTML =
+      '<div class="tag ' + tagClass + '">' + tagText + '</div>' +
+      '<h1>' + title + '</h1>' +
+      '<p>' + message + '</p>' +
+      (showActivateLink ? '<a class="commit" href="activate.html">Back to activation</a>' : '<a class="commit" href="index.html">Back to site</a>');
+  }
+
+  async function confirm() {
+    const params = new URLSearchParams(window.location.search);
+    const orderTrackingId = params.get('OrderTrackingId') || params.get('orderTrackingId');
+
+    if (!orderTrackingId) {
+      render('err', 'Missing info', 'Something looks off', 'We could not find a payment reference in this link. If you just paid, check your activation status directly.', true);
+      return;
+    }
+
+    try {
+      const res = await fetch(WEB_APP_URL + '?action=confirmActivation&orderTrackingId=' + encodeURIComponent(orderTrackingId));
+      const result = await res.json();
+
+      if (!result.success) {
+        render('err', 'Error', 'Could not confirm payment', result.error || 'Please check your activation status in a minute.', true);
+        return;
+      }
+
+      const info = result.data;
+      if (info.paid) {
+        render('ok', 'Paid', 'You\'re activated!', 'Thanks' + (info.fullName ? ', ' + info.fullName : '') + ' — your account is now fully active. No further action needed.', false);
+      } else if (info.statusDesc === 'PENDING') {
+        render('pending', 'Pending', 'Payment still processing', 'This can take a minute or two. Refresh this page shortly, or check your status on the activation page.', true);
+      } else {
+        render('err', info.statusDesc || 'Not completed', 'Payment not completed', 'It looks like this payment didn\'t go through (' + (info.statusDesc || 'unknown status') + '). You can try again from the activation page.', true);
+      }
+    } catch (err) {
+      render('err', 'Error', 'Network error', 'Could not reach the server just now. Check your activation status in a moment.', true);
+    }
+  }
+
+  confirm();
+</script>
+
+</body>
+</html>
