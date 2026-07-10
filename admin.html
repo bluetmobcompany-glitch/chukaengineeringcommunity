@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — Chuka Engineering Community</title>
+<link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -69,13 +70,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--copper);
-    transform: rotate(45deg);
+    overflow: hidden;
+    background: var(--paper);
     flex-shrink: 0;
   }
-  .brandmark .glyph span { transform: rotate(-45deg); }
+  .brandmark .glyph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 
   nav ul {
     list-style: none;
@@ -96,6 +100,41 @@
   }
   nav a:hover, nav a:focus-visible { opacity: 1; border-color: var(--copper); }
   nav a.current { opacity: 1; border-color: var(--copper); color: var(--copper); }
+
+  /* Hamburger toggle button — hidden on wide screens */
+  .nav-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid rgba(232,238,242,0.4);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .nav-toggle .bars {
+    position: relative;
+    width: 18px;
+    height: 12px;
+  }
+  .nav-toggle .bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--paper);
+    transition: transform 0.2s ease, opacity 0.2s ease, top 0.2s ease;
+  }
+  .nav-toggle .bars span:nth-child(1) { top: 0; }
+  .nav-toggle .bars span:nth-child(2) { top: 5px; }
+  .nav-toggle .bars span:nth-child(3) { top: 10px; }
+
+  header.nav-open .nav-toggle .bars span:nth-child(1) { top: 5px; transform: rotate(45deg); }
+  header.nav-open .nav-toggle .bars span:nth-child(2) { opacity: 0; }
+  header.nav-open .nav-toggle .bars span:nth-child(3) { top: 5px; transform: rotate(-45deg); }
 
   .hero {
     max-width: 1180px;
@@ -384,23 +423,63 @@
   }
 
   @media (max-width: 820px) {
-    nav ul { display: none; }
+    .nav-toggle { display: flex; }
+
+    nav {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(16,36,62,0.98);
+      border-bottom: 1px solid rgba(232,238,242,0.15);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    header.nav-open nav { max-height: 480px; }
+
+    nav ul {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 8px 32px 20px;
+    }
+
+    nav ul li { border-top: 1px solid rgba(232,238,242,0.1); }
+    nav ul li:first-child { border-top: none; }
+
+    nav a {
+      display: block;
+      padding: 14px 0;
+      border-bottom: none;
+    }
+
     .login-wrap { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
   }
 </style>
 </head>
 <body>
 
-<header>
+<header id="siteHeader">
   <a href="index.html" class="brandmark">
-    <span class="glyph"><span>CE</span></span>
+    <span class="glyph"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s" alt="Chuka University logo"></span>
     CHUKA ENGINEERING COMMUNITY
   </a>
-  <nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="siteNav">
+    <span class="bars"><span></span><span></span><span></span></span>
+  </button>
+  <nav id="siteNav">
     <ul>
       <li><a href="index.html#register">Register</a></li>
       <li><a href="timetables.html">Timetables</a></li>
       <li><a href="club.html">Club</a></li>
+      <li><a href="events.html">Events</a></li>
       <li><a href="personnel.html">Personnel</a></li>
       <li><a href="sports.html">Sports</a></li>
       <li><a href="shop.html">Shop</a></li>
@@ -416,9 +495,10 @@
     <h1>Class admin console.</h1>
     <p class="lede">
       Sign in with the username and password your class or club was issued
-      to add timetable entries, exam slots, personnel and sports fixtures.
-      Your password never leaves your browser in plain text — it's hashed
-      before it's sent.
+      to add timetable entries, exam and CAT slots, personnel and sports
+      fixtures — every entry is written straight to the community's Google
+      Sheet. Your password never leaves your browser in plain text — it's
+      hashed before it's sent.
     </p>
   </div>
 
@@ -488,6 +568,7 @@
       <div class="tab-strip" role="tablist">
         <button type="button" class="tab-btn active" data-panel="panel-timetable">Class timetable</button>
         <button type="button" class="tab-btn" data-panel="panel-exam">Exam timetable</button>
+        <button type="button" class="tab-btn" data-panel="panel-cat">CAT timetable</button>
         <button type="button" class="tab-btn" data-panel="panel-personnel">Personnel</button>
         <button type="button" class="tab-btn" data-panel="panel-sports">Sports</button>
       </div>
@@ -583,33 +664,40 @@
           <div class="field-row">
             <div class="field-index">03</div>
             <div class="field-body">
+              <label>Reporting time</label>
+              <input type="text" name="Reporting Time" placeholder="e.g. 8:30 (before an 9:00 start)">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">04</div>
+            <div class="field-body">
               <label>Time slot</label>
               <input type="text" name="Time Slot" placeholder="e.g. 9:00 - 11:00" required>
             </div>
           </div>
           <div class="field-row">
-            <div class="field-index">04</div>
+            <div class="field-index">05</div>
             <div class="field-body">
               <label>Unit name</label>
               <input type="text" name="Unit Name" required>
             </div>
           </div>
           <div class="field-row">
-            <div class="field-index">05</div>
+            <div class="field-index">06</div>
             <div class="field-body">
               <label>Unit code</label>
               <input type="text" name="Unit Code" required>
             </div>
           </div>
           <div class="field-row">
-            <div class="field-index">06</div>
+            <div class="field-index">07</div>
             <div class="field-body">
               <label>Venue</label>
               <input type="text" name="Venue" required>
             </div>
           </div>
           <div class="field-row">
-            <div class="field-index">07</div>
+            <div class="field-index">08</div>
             <div class="field-body">
               <label>Invigilator</label>
               <input type="text" name="Invigilator" required>
@@ -617,6 +705,76 @@
           </div>
           <div class="submit-row">
             <span class="form-status" id="status-exam" role="status" aria-live="polite"></span>
+            <button type="submit" class="commit">Add entry</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- CAT TIMETABLE -->
+      <div class="panel" id="panel-cat">
+        <form class="spec-sheet data-form" data-action="addCatEntry" data-status="status-cat">
+          <div class="field-row">
+            <div class="field-index">01</div>
+            <div class="field-body">
+              <label>Year of study</label>
+              <select name="Year of Study" required>
+                <option value="" disabled selected>Select year</option>
+                <option>1st Year</option><option>2nd Year</option><option>3rd Year</option>
+                <option>4th Year</option><option>5th Year</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">02</div>
+            <div class="field-body">
+              <label>CAT date</label>
+              <input type="date" name="CAT Date" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">03</div>
+            <div class="field-body">
+              <label>Reporting time</label>
+              <input type="text" name="Reporting Time" placeholder="e.g. 13:45 (before a 14:00 start)">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">04</div>
+            <div class="field-body">
+              <label>Time slot</label>
+              <input type="text" name="Time Slot" placeholder="e.g. 14:00 - 15:00" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">05</div>
+            <div class="field-body">
+              <label>Unit name</label>
+              <input type="text" name="Unit Name" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">06</div>
+            <div class="field-body">
+              <label>Unit code</label>
+              <input type="text" name="Unit Code" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">07</div>
+            <div class="field-body">
+              <label>Venue</label>
+              <input type="text" name="Venue" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">08</div>
+            <div class="field-body">
+              <label>Invigilator</label>
+              <input type="text" name="Invigilator" required>
+            </div>
+          </div>
+          <div class="submit-row">
+            <span class="form-status" id="status-cat" role="status" aria-live="polite"></span>
             <button type="submit" class="commit">Add entry</button>
           </div>
         </form>
@@ -753,6 +911,31 @@
   // Same deployed Apps Script Web App URL used across the site.
   const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxB_gZomEYQteBMWdE5HNgfutm04QTgu7SBaG9vYHqHzt4meKJHrSRQIDj8WqGDbXPBiw/exec';
 
+  /* ---------- MOBILE NAV TOGGLE ---------- */
+
+  const siteHeader = document.getElementById('siteHeader');
+  const navToggle = document.getElementById('navToggle');
+  const siteNav = document.getElementById('siteNav');
+
+  navToggle.addEventListener('click', () => {
+    const isOpen = siteHeader.classList.toggle('nav-open');
+    navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  siteNav.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A') {
+      siteHeader.classList.remove('nav-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!siteHeader.contains(e.target)) {
+      siteHeader.classList.remove('nav-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
   // ---------- SHA-256 hashing (Web Crypto, browser-native) ----------
   async function sha256Hex(text) {
     const buf = new TextEncoder().encode(text);
@@ -865,6 +1048,10 @@
   });
 
   // ---------- Data-entry forms ----------
+  // Each form posts straight to the Apps Script Web App, which appends a
+  // row to the matching Google Sheet (Class Timetables, Exam Timetables,
+  // CAT Timetables, Class Personnel, or Class Sports) — this is how admins
+  // edit the sheet from the website, no need to open Sheets directly.
   document.querySelectorAll('.data-form').forEach(form => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
