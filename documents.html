@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Documents — Chuka Engineering Community</title>
+<link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -69,13 +70,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--copper);
-    transform: rotate(45deg);
+    overflow: hidden;
+    background: var(--paper);
     flex-shrink: 0;
   }
-  .brandmark .glyph span { transform: rotate(-45deg); }
+  .brandmark .glyph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 
   nav ul {
     list-style: none;
@@ -97,7 +101,40 @@
   nav a:hover, nav a:focus-visible { opacity: 1; border-color: var(--copper); }
   nav a.current { opacity: 1; border-color: var(--copper); }
 
-  @media (max-width: 900px) { nav ul { display: none; } }
+  /* Hamburger toggle button — hidden on wide screens */
+  .nav-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid rgba(232,238,242,0.4);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .nav-toggle .bars {
+    position: relative;
+    width: 18px;
+    height: 12px;
+  }
+  .nav-toggle .bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--paper);
+    transition: transform 0.2s ease, opacity 0.2s ease, top 0.2s ease;
+  }
+  .nav-toggle .bars span:nth-child(1) { top: 0; }
+  .nav-toggle .bars span:nth-child(2) { top: 5px; }
+  .nav-toggle .bars span:nth-child(3) { top: 10px; }
+
+  header.nav-open .nav-toggle .bars span:nth-child(1) { top: 5px; transform: rotate(45deg); }
+  header.nav-open .nav-toggle .bars span:nth-child(2) { opacity: 0; }
+  header.nav-open .nav-toggle .bars span:nth-child(3) { top: 5px; transform: rotate(-45deg); }
 
   main {
     max-width: 1180px;
@@ -242,6 +279,8 @@
   .price-tag.free { color: var(--ok); }
   .price-tag.paid { color: var(--copper); }
 
+  .doc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
   .doc-link {
     font-family: var(--font-mono);
     font-size: 0.72rem;
@@ -251,9 +290,13 @@
     border: 1px solid rgba(232,238,242,0.35);
     padding: 6px 12px;
     white-space: nowrap;
+    background: transparent;
+    color: var(--paper);
+    cursor: pointer;
     transition: border-color 0.15s ease, background 0.15s ease;
   }
   .doc-link:hover { border-color: var(--copper); background: rgba(201,123,61,0.12); }
+  .doc-link.primary { border-color: var(--copper); color: var(--copper); }
 
   .empty-row td {
     text-align: center;
@@ -272,6 +315,134 @@
     color: rgba(232,238,242,0.55);
   }
 
+  /* ---------- IN-SITE DOCUMENT VIEWER ---------- */
+
+  .viewer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(11,27,43,0.85);
+    backdrop-filter: blur(3px);
+    padding: 32px;
+    align-items: center;
+    justify-content: center;
+  }
+  .viewer-overlay.open { display: flex; }
+
+  .viewer-box {
+    width: min(1000px, 100%);
+    height: min(85vh, 900px);
+    background: var(--blueprint-navy);
+    border: 1px solid rgba(232,238,242,0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .viewer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(232,238,242,0.2);
+  }
+
+  .viewer-head h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .viewer-close {
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .viewer-close:hover { border-color: var(--copper); color: var(--copper); }
+
+  .viewer-body {
+    flex: 1;
+    background: rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .viewer-body iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  .viewer-fallback {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    padding: 24px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.7);
+  }
+  .viewer-fallback.show { display: flex; }
+
+  .viewer-foot {
+    padding: 12px 18px;
+    border-top: 1px solid rgba(232,238,242,0.2);
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  @media (max-width: 820px) {
+    .nav-toggle { display: flex; }
+
+    nav {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(16,36,62,0.98);
+      border-bottom: 1px solid rgba(232,238,242,0.15);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    header.nav-open nav { max-height: 480px; }
+
+    nav ul {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 8px 32px 20px;
+    }
+
+    nav ul li { border-top: 1px solid rgba(232,238,242,0.1); }
+    nav ul li:first-child { border-top: none; }
+
+    nav a {
+      display: block;
+      padding: 14px 0;
+      border-bottom: none;
+    }
+
+    .viewer-overlay { padding: 12px; }
+    .viewer-box { height: 90vh; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     * { transition: none !important; }
@@ -280,18 +451,22 @@
 </head>
 <body>
 
-<header>
+<header id="siteHeader">
   <a href="index.html" class="brandmark">
-    <span class="glyph"><span>CE</span></span>
+    <span class="glyph"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s" alt="Chuka University logo"></span>
     CHUKA ENGINEERING COMMUNITY
   </a>
-  <nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="siteNav">
+    <span class="bars"><span></span><span></span><span></span></span>
+  </button>
+  <nav id="siteNav">
     <ul>
       <li><a href="index.html#register">Register</a></li>
       <li><a href="timetables.html">Timetables</a></li>
+      <li><a href="club.html">Club</a></li>
+      <li><a href="events.html">Events</a></li>
       <li><a href="personnel.html">Personnel</a></li>
       <li><a href="sports.html">Sports</a></li>
-      <li><a href="club.html">Club</a></li>
       <li><a href="shop.html">Shop</a></li>
       <li><a href="documents.html" class="current">Documents</a></li>
       <li><a href="admin.html">Admin</a></li>
@@ -302,7 +477,7 @@
 <main>
   <p class="eyebrow">Sheet 07 — Documents</p>
   <h1>Notes &amp; <em>revision papers</em></h1>
-  <p class="lede">Free and paid documents by year and unit — lecture notes, past papers, cheat sheets. Filter by year, or search by title or unit. Paid items are marked; contact the uploader for access details.</p>
+  <p class="lede">Free and paid documents by year and unit — lecture notes, past papers, cheat sheets. Filter by year, or search by title or unit. Click <strong>View</strong> to open a document right here on the site; every file listed here is public.</p>
 
   <div class="controls">
     <div class="control-group">
@@ -353,9 +528,53 @@
 
 <footer>Chuka Engineering Community — student-run, sheet-backed.</footer>
 
+<!-- In-site document viewer -->
+<div class="viewer-overlay" id="viewerOverlay">
+  <div class="viewer-box">
+    <div class="viewer-head">
+      <h3 id="viewerTitle">Document</h3>
+      <button class="viewer-close" id="viewerClose" aria-label="Close viewer">✕</button>
+    </div>
+    <div class="viewer-body">
+      <iframe id="viewerFrame" title="Document preview" allow="autoplay"></iframe>
+      <div class="viewer-fallback" id="viewerFallback">
+        <p>This file can't be previewed inline. Open it directly instead.</p>
+      </div>
+    </div>
+    <div class="viewer-foot">
+      <a class="doc-link primary" id="viewerExternal" href="#" target="_blank" rel="noopener">Open in new tab ↗</a>
+    </div>
+  </div>
+</div>
+
 <script>
   // Same Apps Script Web App URL used across every page.
   const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxB_gZomEYQteBMWdE5HNgfutm04QTgu7SBaG9vYHqHzt4meKJHrSRQIDj8WqGDbXPBiw/exec';
+
+  /* ---------- MOBILE NAV TOGGLE ---------- */
+
+  const siteHeader = document.getElementById('siteHeader');
+  const navToggle = document.getElementById('navToggle');
+  const siteNav = document.getElementById('siteNav');
+
+  navToggle.addEventListener('click', () => {
+    const isOpen = siteHeader.classList.toggle('nav-open');
+    navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  siteNav.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A') {
+      siteHeader.classList.remove('nav-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!siteHeader.contains(e.target)) {
+      siteHeader.classList.remove('nav-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
 
   let documents = [];
   let activeYear = 'all';
@@ -431,14 +650,19 @@
       return;
     }
 
-    docBody.innerHTML = rows.map(r => {
+    docBody.innerHTML = rows.map((r, i) => {
       const price = Number(r['Price (KES, 0 = Free)']) || 0;
       const priceLabel = price === 0
         ? `<span class="price-tag free">Free</span>`
         : `<span class="price-tag paid">KES ${price}</span>`;
       const uploadDate = formatDate(r['Upload Date']);
-      const link = r['File Link']
-        ? `<a class="doc-link" href="${escapeAttr(r['File Link'])}" target="_blank" rel="noopener">Open</a>`
+      const fileLink = r['File Link'] || '';
+
+      const actions = fileLink
+        ? `<div class="doc-actions">
+             <button class="doc-link primary" data-action="view" data-index="${i}">View</button>
+             <a class="doc-link" href="${escapeAttr(fileLink)}" target="_blank" rel="noopener">New tab ↗</a>
+           </div>`
         : '';
 
       return `
@@ -451,10 +675,20 @@
           <td>${escapeHtml(r['Year of Study'])}</td>
           <td>${priceLabel}</td>
           <td class="doc-meta">${uploadDate}</td>
-          <td>${link}</td>
+          <td>${actions}</td>
         </tr>
       `;
     }).join('');
+
+    // renderedRows is used by the click handler below to look up the file link + title
+    window.__renderedDocRows = rows;
+
+    docBody.querySelectorAll('[data-action="view"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = window.__renderedDocRows[Number(btn.dataset.index)];
+        if (row) openViewer(row['File Link'], row['Document Title']);
+      });
+    });
   }
 
   function formatDate(v) {
@@ -474,6 +708,74 @@
     sheetStatus.textContent = msg;
     if (state) sheetStatus.setAttribute('data-state', state); else sheetStatus.removeAttribute('data-state');
   }
+
+  /* ---------- IN-SITE DOCUMENT VIEWER ---------- */
+  // Documents are public, so Drive/Docs links can be embedded directly via
+  // their /preview endpoint. Anything else (a direct PDF link, etc.) is
+  // loaded straight into the iframe. "Open in new tab" is always available
+  // as a fallback in case a link can't be embedded.
+
+  const viewerOverlay = document.getElementById('viewerOverlay');
+  const viewerTitle = document.getElementById('viewerTitle');
+  const viewerFrame = document.getElementById('viewerFrame');
+  const viewerFallback = document.getElementById('viewerFallback');
+  const viewerExternal = document.getElementById('viewerExternal');
+  const viewerClose = document.getElementById('viewerClose');
+
+  function getEmbeddableUrl(link) {
+    if (!link) return null;
+    const s = String(link).trim();
+
+    // drive.google.com/file/d/FILE_ID/...
+    let m = s.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+
+    // drive.google.com/open?id=FILE_ID  or  ...&id=FILE_ID
+    m = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+
+    // docs.google.com/(document|spreadsheets|presentation)/d/FILE_ID/...
+    m = s.match(/docs\.google\.com\/(document|spreadsheets|presentation)\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return `https://docs.google.com/${m[1]}/d/${m[2]}/preview`;
+
+    // Direct file links (pdf, images, etc.) — embed as-is.
+    return s;
+  }
+
+  function openViewer(link, title) {
+    if (!link) return;
+    viewerTitle.textContent = title || 'Document';
+    viewerExternal.href = link;
+    viewerFallback.classList.remove('show');
+    viewerFrame.style.display = 'block';
+
+    const embedUrl = getEmbeddableUrl(link);
+    viewerFrame.src = embedUrl;
+
+    viewerOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeViewer() {
+    viewerOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    viewerFrame.src = 'about:blank';
+  }
+
+  // If the iframe fails to load a preview (e.g. blocked by the source site),
+  // fall back to a friendly message with the "Open in new tab" link.
+  viewerFrame.addEventListener('error', () => {
+    viewerFrame.style.display = 'none';
+    viewerFallback.classList.add('show');
+  });
+
+  viewerClose.addEventListener('click', closeViewer);
+  viewerOverlay.addEventListener('click', (e) => {
+    if (e.target === viewerOverlay) closeViewer();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && viewerOverlay.classList.contains('open')) closeViewer();
+  });
 
   loadDocuments();
 </script>
