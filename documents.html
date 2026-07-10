@@ -279,7 +279,7 @@
   .price-tag.free { color: var(--ok); }
   .price-tag.paid { color: var(--copper); }
 
-  .doc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .doc-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
   .doc-link {
     font-family: var(--font-mono);
@@ -297,6 +297,12 @@
   }
   .doc-link:hover { border-color: var(--copper); background: rgba(201,123,61,0.12); }
   .doc-link.primary { border-color: var(--copper); color: var(--copper); }
+
+  .doc-link-broken {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--err);
+  }
 
   .empty-row td {
     text-align: center;
@@ -625,6 +631,23 @@
     }
   }
 
+  // Guards against the GitHub Pages 404 you get when a sheet's "File Link"
+  // is missing its https:// scheme. Without a scheme, the browser resolves
+  // the link as a path relative to THIS site (e.g. "drive.google.com/..."
+  // becomes "https://yourname.github.io/drive.google.com/..."), which
+  // doesn't exist and 404s. This normalizes obvious cases and returns ''
+  // for anything that can't be safely resolved to an absolute URL, so the
+  // page can show a clear "broken link" message instead of a dead button.
+  function normalizeLink(link) {
+    if (!link) return '';
+    let s = String(link).trim();
+    if (/^https?:\/\//i.test(s)) return s;
+    if (/^\/\//.test(s)) return 'https:' + s;                 // protocol-relative
+    if (/^www\./i.test(s)) return 'https://' + s;              // www.example.com/...
+    if (/^[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$)/i.test(s)) return 'https://' + s; // bare domain
+    return '';
+  }
+
   function renderDocuments() {
     let rows = documents;
 
@@ -656,14 +679,22 @@
         ? `<span class="price-tag free">Free</span>`
         : `<span class="price-tag paid">KES ${price}</span>`;
       const uploadDate = formatDate(r['Upload Date']);
-      const fileLink = r['File Link'] || '';
+      const rawLink = r['File Link'] || '';
+      const fileLink = normalizeLink(rawLink);
 
-      const actions = fileLink
-        ? `<div class="doc-actions">
+      let actions;
+      if (fileLink) {
+        actions = `<div class="doc-actions">
              <button class="doc-link primary" data-action="view" data-index="${i}">View</button>
              <a class="doc-link" href="${escapeAttr(fileLink)}" target="_blank" rel="noopener">New tab ↗</a>
-           </div>`
-        : '';
+           </div>`;
+      } else if (rawLink) {
+        // There's a value in the sheet, but it's not a resolvable URL —
+        // surface that instead of linking to a broken, relative path.
+        actions = `<span class="doc-link-broken" title="${escapeAttr(rawLink)}">Broken link — check sheet</span>`;
+      } else {
+        actions = '';
+      }
 
       return `
         <tr>
@@ -686,7 +717,7 @@
     docBody.querySelectorAll('[data-action="view"]').forEach(btn => {
       btn.addEventListener('click', () => {
         const row = window.__renderedDocRows[Number(btn.dataset.index)];
-        if (row) openViewer(row['File Link'], row['Document Title']);
+        if (row) openViewer(normalizeLink(row['File Link']), row['Document Title']);
       });
     });
   }
