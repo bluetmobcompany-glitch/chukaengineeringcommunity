@@ -99,7 +99,40 @@
   }
   nav a:hover, nav a:focus-visible { opacity: 1; border-color: var(--copper); }
 
-  .nav-toggle { display: none; }
+  /* Hamburger toggle button — hidden on wide screens */
+  .nav-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid rgba(232,238,242,0.4);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .nav-toggle .bars {
+    position: relative;
+    width: 18px;
+    height: 12px;
+  }
+  .nav-toggle .bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--paper);
+    transition: transform 0.2s ease, opacity 0.2s ease, top 0.2s ease;
+  }
+  .nav-toggle .bars span:nth-child(1) { top: 0; }
+  .nav-toggle .bars span:nth-child(2) { top: 5px; }
+  .nav-toggle .bars span:nth-child(3) { top: 10px; }
+
+  header.nav-open .nav-toggle .bars span:nth-child(1) { top: 5px; transform: rotate(45deg); }
+  header.nav-open .nav-toggle .bars span:nth-child(2) { opacity: 0; }
+  header.nav-open .nav-toggle .bars span:nth-child(3) { top: 5px; transform: rotate(-45deg); }
 
   /* ---------- HERO / TITLE BLOCK ---------- */
 
@@ -200,6 +233,13 @@
     font-size: 1.7rem;
   }
 
+  .section-head .section-sub {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: rgba(232,238,242,0.55);
+    margin-left: auto;
+  }
+
   /* ---------- REGISTRATION FORM ---------- */
 
   .reg-wrap {
@@ -251,6 +291,13 @@
     margin-bottom: 8px;
   }
 
+  .field-body label .optional-tag {
+    color: rgba(232,238,242,0.4);
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: 6px;
+  }
+
   .field-body input,
   .field-body select {
     width: 100%;
@@ -298,13 +345,144 @@
   button.commit:disabled { opacity: 0.5; cursor: not-allowed; }
   button.commit:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
 
-  #form-status {
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    min-height: 1.2em;
+  button.commit.ghost {
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid var(--copper);
   }
+
+  #form-status { font-family: var(--font-mono); font-size: 0.82rem; min-height: 1.2em; }
   #form-status[data-state="ok"] { color: var(--ok); }
   #form-status[data-state="err"] { color: var(--err); }
+
+  /* ---------- LOOKUP (check registration) ---------- */
+
+  .lookup-panel {
+    background: rgba(232,238,242,0.04);
+    border: 1px solid rgba(232,238,242,0.3);
+    padding: 28px;
+  }
+
+  .lookup-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .lookup-row input {
+    flex: 1;
+    min-width: 220px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 10px 2px;
+    outline: none;
+  }
+  .lookup-row input:focus { border-color: var(--copper); }
+
+  .lookup-hint {
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: rgba(232,238,242,0.5);
+  }
+
+  .lookup-result {
+    margin-top: 22px;
+    border-top: 1px solid rgba(232,238,242,0.25);
+    padding-top: 18px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    min-height: 1.2em;
+  }
+
+  .lookup-result .status-ok { color: var(--ok); }
+  .lookup-result .status-err { color: var(--err); }
+
+  .lookup-card {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .lookup-card img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border: 1px solid rgba(232,238,242,0.3);
+  }
+
+  .lookup-card .placeholder-avatar {
+    width: 56px;
+    height: 56px;
+    border: 1px solid rgba(232,238,242,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--blueprint-line);
+  }
+
+  /* ---------- COMMUNITY HINTS (events preview etc.) ---------- */
+
+  .hint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1px;
+    background: rgba(232,238,242,0.25);
+    border: 1px solid rgba(232,238,242,0.25);
+  }
+
+  .hint-card {
+    background: var(--blueprint-navy);
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .hint-card .hint-tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--copper);
+  }
+
+  .hint-card h4 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .hint-card p {
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.7);
+  }
+
+  .hint-card a.hint-more {
+    margin-top: auto;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    text-decoration: none;
+    padding-top: 8px;
+  }
+  .hint-card a.hint-more:hover { color: var(--copper); }
+
+  .hint-empty {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: rgba(232,238,242,0.5);
+    padding: 24px 4px;
+  }
 
   /* ---------- QUICK LINKS ---------- */
 
@@ -356,7 +534,38 @@
   }
 
   @media (max-width: 820px) {
-    nav ul { display: none; }
+    .nav-toggle { display: flex; }
+
+    nav {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(16,36,62,0.98);
+      border-bottom: 1px solid rgba(232,238,242,0.15);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    header.nav-open nav { max-height: 480px; }
+
+    nav ul {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 8px 32px 20px;
+    }
+
+    nav ul li { border-top: 1px solid rgba(232,238,242,0.1); }
+    nav ul li:first-child { border-top: none; }
+
+    nav a {
+      display: block;
+      padding: 14px 0;
+      border-bottom: none;
+    }
+
     .reg-wrap { grid-template-columns: 1fr; }
     .title-block { grid-template-columns: repeat(2, 1fr); }
     .title-block .cell:nth-child(2n) { border-right: none; }
@@ -372,12 +581,15 @@
 </head>
 <body>
 
-<header>
+<header id="siteHeader">
   <a href="#top" class="brandmark">
     <span class="glyph"><span>CE</span></span>
     CHUKA ENGINEERING COMMUNITY
   </a>
-  <nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="siteNav">
+    <span class="bars"><span></span><span></span><span></span></span>
+  </button>
+  <nav id="siteNav">
     <ul>
       <li><a href="#register">Register</a></li>
       <li><a href="timetables.html">Timetables</a></li>
@@ -436,6 +648,7 @@
           <li>Use your official Chuka University email where possible.</li>
           <li>Your registration number must match your student ID exactly — it's how your class admin finds you.</li>
           <li>One entry per student. Resubmitting with the same registration number will be rejected.</li>
+          <li>A profile photo link is optional — it's used on personnel/sports pages if you're ever listed there.</li>
           <li>Want to join the Engineering Club too? That's a separate, short sign-up on the <a href="club.html" style="color: var(--copper);">Club page</a>.</li>
         </ul>
       </div>
@@ -483,12 +696,48 @@
             </select>
           </div>
         </div>
+        <div class="field-row">
+          <div class="field-index">06</div>
+          <div class="field-body">
+            <label for="imageUrl">Profile image link<span class="optional-tag">(optional)</span></label>
+            <input type="url" id="imageUrl" name="imageUrl" placeholder="https://... link to a photo of you">
+          </div>
+        </div>
 
         <div class="submit-row">
           <span id="form-status" role="status" aria-live="polite"></span>
           <button type="submit" class="commit" id="submitBtn">Submit registration</button>
         </div>
       </form>
+    </div>
+  </section>
+
+  <section id="lookup">
+    <div class="section-head">
+      <span class="sheet-no">01a</span>
+      <h2>Already registered?</h2>
+      <span class="section-sub">Search by reg. number or email</span>
+    </div>
+
+    <div class="lookup-panel">
+      <div class="lookup-row">
+        <input type="text" id="lookupQuery" placeholder="e.g. ENG-2024-00123 or your email">
+        <button type="button" class="commit ghost" id="lookupBtn">Check status</button>
+      </div>
+      <p class="lookup-hint">This checks the register only — it won't show your phone number or other students' details.</p>
+      <div class="lookup-result" id="lookupResult" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="hints">
+    <div class="section-head">
+      <span class="sheet-no">—</span>
+      <h2>What's happening</h2>
+      <span class="section-sub">A few hints from the Events sheet</span>
+    </div>
+
+    <div class="hint-grid" id="eventHints">
+      <div class="hint-empty">Loading upcoming events…</div>
     </div>
   </section>
 
@@ -541,7 +790,35 @@
 
 <script>
   // Replace with your deployed Apps Script Web App URL (see api.gs).
-  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxB_gZomEYQteBMWdE5HNgfutm04QTgu7SBaG9vYHqHzt4meKJHrSRQIDj8WqGDbXPBiw/exec';
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxXI5KnXT2VJLeaR-44LCPFuM7b0b3_zQyyC9W55Wgfo0QBTNaydA_qHxopuxfJbgBE/exec';
+
+  /* ---------- MOBILE NAV TOGGLE ---------- */
+
+  const siteHeader = document.getElementById('siteHeader');
+  const navToggle = document.getElementById('navToggle');
+  const siteNav = document.getElementById('siteNav');
+
+  navToggle.addEventListener('click', () => {
+    const isOpen = siteHeader.classList.toggle('nav-open');
+    navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  // Close the mobile menu after tapping a link, and on outside click.
+  siteNav.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A') {
+      siteHeader.classList.remove('nav-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!siteHeader.contains(e.target)) {
+      siteHeader.classList.remove('nav-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  /* ---------- REGISTRATION FORM ---------- */
 
   const form = document.getElementById('registerForm');
   const statusEl = document.getElementById('form-status');
@@ -555,10 +832,12 @@
       email: document.getElementById('email').value.trim(),
       phone: document.getElementById('phone').value.trim(),
       regNumber: document.getElementById('regNumber').value.trim(),
-      year: document.getElementById('year').value
+      year: document.getElementById('year').value,
+      imageUrl: document.getElementById('imageUrl').value.trim() // optional
     };
 
-    if (Object.values(data).some(v => !v)) {
+    const requiredFields = ['fullName', 'email', 'phone', 'regNumber', 'year'];
+    if (requiredFields.some(f => !data[f])) {
       setStatus('Please fill in every field.', 'err');
       return;
     }
@@ -591,6 +870,110 @@
     if (state) statusEl.setAttribute('data-state', state);
     else statusEl.removeAttribute('data-state');
   }
+
+  /* ---------- REGISTRATION LOOKUP ---------- */
+
+  const lookupBtn = document.getElementById('lookupBtn');
+  const lookupInput = document.getElementById('lookupQuery');
+  const lookupResult = document.getElementById('lookupResult');
+
+  async function runLookup() {
+    const query = lookupInput.value.trim();
+    if (!query) {
+      lookupResult.innerHTML = '<span class="status-err">Enter a registration number or email first.</span>';
+      return;
+    }
+
+    lookupResult.textContent = 'Searching…';
+    lookupBtn.disabled = true;
+
+    try {
+      const url = WEB_APP_URL + '?action=checkRegistration&query=' + encodeURIComponent(query);
+      const res = await fetch(url);
+      const result = await res.json();
+
+      if (!result.success) {
+        lookupResult.innerHTML = '<span class="status-err">' + escapeHtml(result.error || 'Something went wrong.') + '</span>';
+        return;
+      }
+
+      const match = result.data;
+      if (!match || !match.found) {
+        lookupResult.innerHTML = '<span class="status-err">No matching registration found. Double-check the number/email, or register above.</span>';
+        return;
+      }
+
+      const avatar = match.imageUrl
+        ? '<img src="' + escapeHtml(match.imageUrl) + '" alt="">'
+        : '<span class="placeholder-avatar">' + escapeHtml((match.fullName || '?').charAt(0).toUpperCase()) + '</span>';
+
+      lookupResult.innerHTML =
+        '<div class="lookup-card">' +
+          avatar +
+          '<div>' +
+            '<div class="status-ok">Registered — ' + escapeHtml(match.status || 'Active') + '</div>' +
+            '<div>' + escapeHtml(match.fullName || '') + ' &middot; ' + escapeHtml(match.year || '') + ' &middot; ' + escapeHtml(match.regNumber || '') + '</div>' +
+          '</div>' +
+        '</div>';
+    } catch (err) {
+      lookupResult.innerHTML = '<span class="status-err">Network error — try again in a moment.</span>';
+    } finally {
+      lookupBtn.disabled = false;
+    }
+  }
+
+  lookupBtn.addEventListener('click', runLookup);
+  lookupInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); runLookup(); }
+  });
+
+  /* ---------- COMMUNITY HINTS (events preview) ---------- */
+
+  async function loadEventHints() {
+    const container = document.getElementById('eventHints');
+    try {
+      const res = await fetch(WEB_APP_URL + '?action=getEvents');
+      const result = await res.json();
+
+      if (!result.success || !Array.isArray(result.data) || !result.data.length) {
+        container.innerHTML = '<div class="hint-empty">No events posted yet — check back soon, or see the <a href="events.html" style="color: var(--copper);">Events page</a>.</div>';
+        return;
+      }
+
+      // Prefer Upcoming/Ongoing events, most recently posted first, cap at 3.
+      const events = result.data
+        .filter(ev => !ev['Status'] || ev['Status'] === 'Upcoming' || ev['Status'] === 'Ongoing')
+        .slice(-3)
+        .reverse();
+
+      if (!events.length) {
+        container.innerHTML = '<div class="hint-empty">Nothing upcoming right now — see the full <a href="events.html" style="color: var(--copper);">Events page</a>.</div>';
+        return;
+      }
+
+      container.innerHTML = events.map(ev => (
+        '<div class="hint-card">' +
+          '<span class="hint-tag">' + escapeHtml(ev['Year of Study'] || 'All Years') + ' &middot; ' + escapeHtml(ev['Status'] || 'Upcoming') + '</span>' +
+          '<h4>' + escapeHtml(ev['Title'] || 'Untitled event') + '</h4>' +
+          '<p>' + escapeHtml(truncate(ev['Description'] || '', 90)) + '</p>' +
+          '<a class="hint-more" href="events.html">Full details &rarr;</a>' +
+        '</div>'
+      )).join('');
+    } catch (err) {
+      container.innerHTML = '<div class="hint-empty">Couldn\'t load events right now — see the <a href="events.html" style="color: var(--copper);">Events page</a> directly.</div>';
+    }
+  }
+
+  function truncate(text, max) {
+    return text.length > max ? text.slice(0, max).trim() + '…' : text;
+  }
+
+  function escapeHtml(v) {
+    if (v === undefined || v === null) return '';
+    return String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  loadEventHints();
 </script>
 
 </body>
