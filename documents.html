@@ -251,15 +251,19 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--blueprint-line);
-    text-align: left;
+    text-align: center;
     padding: 12px 16px;
     border-bottom: 1px solid rgba(232,238,242,0.3);
-    white-space: nowrap;
   }
 
   tbody td {
     padding: 12px 16px;
     border-bottom: 1px solid rgba(232,238,242,0.15);
+    text-align: center;
+    vertical-align: middle;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
   }
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover { background: rgba(232,238,242,0.04); }
@@ -279,7 +283,7 @@
   .price-tag.free { color: var(--ok); }
   .price-tag.paid { color: var(--copper); }
 
-  .doc-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .doc-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: center; }
 
   .doc-link {
     font-family: var(--font-mono);
@@ -699,7 +703,7 @@
 
       return `
         <tr>
-          <td>
+          <td style="text-align:center;">
             <div class="doc-title">${escapeHtml(r['Document Title'])}</div>
             <div class="doc-meta">${escapeHtml(r['Category'])}${r['Uploaded By'] ? ' · ' + escapeHtml(r['Uploaded By']) : ''}</div>
           </td>
