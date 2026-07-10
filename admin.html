@@ -258,6 +258,18 @@
   }
   .field-body input:focus, .field-body select:focus, .field-body textarea:focus { border-color: var(--copper); }
   .field-body select option { background: var(--blueprint-navy); color: var(--paper); }
+  .field-body select:disabled, .field-body input:disabled {
+    color: var(--copper);
+    opacity: 0.9;
+    -webkit-text-fill-color: var(--copper);
+  }
+
+  .field-body .locked-note {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--copper);
+    padding: 6px 2px;
+  }
 
   .submit-row {
     padding: 20px;
@@ -325,6 +337,18 @@
     font-size: 0.85rem;
   }
   .session-bar .who strong { color: var(--copper); }
+  .session-bar .who .role-tag {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(76,134,174,0.25);
+    border: 1px solid var(--blueprint-line);
+    padding: 2px 8px;
+    border-radius: 2px;
+    color: var(--paper);
+  }
 
   /* ---------- WORKSPACE TABS ---------- */
   .workspace { display: none; }
@@ -359,6 +383,13 @@
 
   .panel { display: none; }
   .panel.active { display: block; }
+
+  .role-empty-state {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: rgba(232,238,242,0.6);
+    padding: 20px 0;
+  }
 
   /* ---------- HASH UTILITY ---------- */
   .hash-utility {
@@ -549,11 +580,13 @@
     <p class="eyebrow">Sheet 08 of 06 — restricted</p>
     <h1>Class admin console.</h1>
     <p class="lede">
-      Sign in with the username and password your class or club was issued
-      to add timetable entries, exam and CAT slots, personnel, sports
-      fixtures, and project groups — every entry is written straight to the
-      community's Google Sheet. Your password never leaves your browser in
-      plain text — it's hashed before it's sent.
+      Sign in with the username and password your class or club was issued.
+      What you can edit depends on your section: <strong style="color: var(--copper);">class admins</strong>
+      manage their own year's timetable, personnel, sports and events;
+      the <strong style="color: var(--copper);">Engineering Club admin</strong> manages club events and
+      the club logo; the <strong style="color: var(--copper);">General Community admin</strong> can manage
+      any year and post community-wide events. Your password never leaves
+      your browser in plain text — it's hashed before it's sent.
     </p>
     <p style="margin-top: 18px;">
       <a href="#groups" id="groupsShortcutLink" style="display:inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--copper); border-bottom: 1px solid var(--copper); padding-bottom: 2px; text-decoration: none;">Set up groups for your class &rarr;</a>
@@ -572,6 +605,7 @@
         <p>Notes:</p>
         <ul>
           <li>One username/password pair per class (1st–5th Year), plus one for the Engineering Club and one for the General Community.</li>
+          <li>Your "Class / Section" value in the Admins sheet decides what you can edit here — it's enforced on the server, not just hidden in the UI.</li>
           <li>Ask whoever ran the sheet setup for your credentials if you don't have them yet.</li>
           <li>Lost or leaked credentials? Have an owner update your row in the <span style="color: var(--copper);">Admins</span> sheet.</li>
         </ul>
@@ -613,7 +647,7 @@
   <!-- SESSION + WORKSPACE -->
   <section id="workspace-section">
     <div class="session-bar" id="sessionBar">
-      <span class="who">Signed in as <strong id="whoName"></strong> — <span id="whoSection"></span></span>
+      <span class="who">Signed in as <strong id="whoName"></strong> — <span id="whoSection"></span><span class="role-tag" id="whoRoleTag"></span></span>
       <button type="button" class="ghost" id="logoutBtn">Sign out</button>
     </div>
 
@@ -624,12 +658,18 @@
       </div>
 
       <div class="tab-strip" role="tablist">
-        <button type="button" class="tab-btn active" data-panel="panel-timetable">Class timetable</button>
-        <button type="button" class="tab-btn" data-panel="panel-exam">Exam timetable</button>
-        <button type="button" class="tab-btn" data-panel="panel-cat">CAT timetable</button>
-        <button type="button" class="tab-btn" data-panel="panel-personnel">Personnel</button>
-        <button type="button" class="tab-btn" data-panel="panel-sports">Sports</button>
-        <button type="button" class="tab-btn" data-panel="panel-groups">Groups</button>
+        <button type="button" class="tab-btn active" data-panel="panel-timetable" data-roles="class,community">Class timetable</button>
+        <button type="button" class="tab-btn" data-panel="panel-exam" data-roles="class,community">Exam timetable</button>
+        <button type="button" class="tab-btn" data-panel="panel-cat" data-roles="class,community">CAT timetable</button>
+        <button type="button" class="tab-btn" data-panel="panel-personnel" data-roles="class,community">Personnel</button>
+        <button type="button" class="tab-btn" data-panel="panel-sports" data-roles="class,community">Sports</button>
+        <button type="button" class="tab-btn" data-panel="panel-groups" data-roles="class,community">Groups</button>
+        <button type="button" class="tab-btn" data-panel="panel-events" data-roles="class,club,community">Events</button>
+        <button type="button" class="tab-btn" data-panel="panel-club" data-roles="club,community">Club settings</button>
+      </div>
+
+      <div class="role-empty-state" id="roleEmptyState" style="display:none;">
+        Your admin section isn't recognised. Ask whoever manages the sheet to check your row in the Admins sheet — "Class / Section" needs to be one of 1st–5th Year, "Engineering Club", or "General Community".
       </div>
 
       <!-- CLASS TIMETABLE -->
@@ -637,7 +677,7 @@
         <form class="spec-sheet data-form" data-action="addTimetableEntry" data-status="status-timetable">
           <div class="field-row">
             <div class="field-index">01</div>
-            <div class="field-body">
+            <div class="field-body" data-year-field>
               <label>Year of study</label>
               <select name="Year of Study" required>
                 <option value="" disabled selected>Select year</option>
@@ -704,7 +744,7 @@
         <form class="spec-sheet data-form" data-action="addExamEntry" data-status="status-exam">
           <div class="field-row">
             <div class="field-index">01</div>
-            <div class="field-body">
+            <div class="field-body" data-year-field>
               <label>Year of study</label>
               <select name="Year of Study" required>
                 <option value="" disabled selected>Select year</option>
@@ -774,7 +814,7 @@
         <form class="spec-sheet data-form" data-action="addCatEntry" data-status="status-cat">
           <div class="field-row">
             <div class="field-index">01</div>
-            <div class="field-body">
+            <div class="field-body" data-year-field>
               <label>Year of study</label>
               <select name="Year of Study" required>
                 <option value="" disabled selected>Select year</option>
@@ -844,7 +884,7 @@
         <form class="spec-sheet data-form" data-action="addPersonnel" data-status="status-personnel">
           <div class="field-row">
             <div class="field-index">01</div>
-            <div class="field-body">
+            <div class="field-body" data-year-field>
               <label>Year of study</label>
               <select name="Year of Study" required>
                 <option value="" disabled selected>Select year</option>
@@ -900,7 +940,7 @@
         <form class="spec-sheet data-form" data-action="addSportsEntry" data-status="status-sports">
           <div class="field-row">
             <div class="field-index">01</div>
-            <div class="field-body">
+            <div class="field-body" data-year-field>
               <label>Year of study</label>
               <select name="Year of Study" required>
                 <option value="" disabled selected>Select year</option>
@@ -961,6 +1001,20 @@
       <!-- GROUPS -->
       <div class="panel" id="panel-groups">
         <form class="spec-sheet" id="groupsForm" novalidate>
+          <div class="field-row" id="groupsYearRow" style="display:none;">
+            <div class="field-index">00</div>
+            <div class="field-body">
+              <label for="groupsTargetYear">Target class year</label>
+              <select id="groupsTargetYear" name="targetYear">
+                <option value="" disabled selected>Select year</option>
+                <option>1st Year</option><option>2nd Year</option><option>3rd Year</option>
+                <option>4th Year</option><option>5th Year</option>
+              </select>
+              <p style="font-size:0.78rem; color: rgba(232,238,242,0.55); margin-top:8px;">
+                As the General Community admin you can set up groups for any class — pick which one these groups belong to.
+              </p>
+            </div>
+          </div>
           <div class="field-row">
             <div class="field-index">01</div>
             <div class="field-body">
@@ -992,6 +1046,119 @@
           <div id="groupLinksList"></div>
         </div>
       </div>
+
+      <!-- EVENTS -->
+      <div class="panel" id="panel-events">
+        <form class="spec-sheet data-form" data-action="addEvent" data-status="status-events">
+          <div class="field-row">
+            <div class="field-index">01</div>
+            <div class="field-body">
+              <label>Title</label>
+              <input type="text" name="title" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">02</div>
+            <div class="field-body">
+              <label>Description</label>
+              <textarea name="description" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">03</div>
+            <div class="field-body">
+              <label>Event date</label>
+              <input type="date" name="eventDate" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">04</div>
+            <div class="field-body">
+              <label>Event time</label>
+              <input type="text" name="eventTime" placeholder="e.g. 2:00 PM">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">05</div>
+            <div class="field-body">
+              <label>Venue</label>
+              <input type="text" name="venue">
+            </div>
+          </div>
+          <div class="field-row" id="eventsAudienceRow">
+            <div class="field-index">06</div>
+            <div class="field-body">
+              <label>Audience</label>
+              <!-- populated by JS: locked text for class/club admins, a
+                   free select (incl. "All Years") for the community admin -->
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">07</div>
+            <div class="field-body">
+              <label>YouTube link (optional)</label>
+              <input type="url" name="youtubeLink" placeholder="https://youtube.com/watch?v=...">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">08</div>
+            <div class="field-body">
+              <label>Image URL (optional)</label>
+              <input type="url" name="imageUrl">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">09</div>
+            <div class="field-body">
+              <label>Form link (optional)</label>
+              <input type="url" name="formLink">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">10</div>
+            <div class="field-body">
+              <label>Attachment link(s) (optional)</label>
+              <input type="text" name="attachmentLinks" placeholder="Separate multiple links with a comma">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-index">11</div>
+            <div class="field-body">
+              <label>Status</label>
+              <select name="status">
+                <option value="Upcoming" selected>Upcoming</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          <div class="submit-row">
+            <span class="form-status" id="status-events" role="status" aria-live="polite"></span>
+            <button type="submit" class="commit">Post event</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- CLUB SETTINGS -->
+      <div class="panel" id="panel-club">
+        <form class="spec-sheet" id="clubSettingsForm" novalidate>
+          <div class="field-row">
+            <div class="field-index">01</div>
+            <div class="field-body">
+              <label for="clubLogoUrl">Club logo URL</label>
+              <input type="url" id="clubLogoUrl" name="logoUrl" placeholder="https://... link to the club logo" required>
+              <p style="font-size:0.78rem; color: rgba(232,238,242,0.55); margin-top:8px;">
+                Shown as the large logo on club.html. Replacing it here overwrites the current one immediately.
+              </p>
+            </div>
+          </div>
+          <div class="submit-row">
+            <span class="form-status" id="status-club" role="status" aria-live="polite"></span>
+            <button type="submit" class="commit">Update club logo</button>
+          </div>
+        </form>
+      </div>
     </div>
   </section>
 </main>
@@ -1004,6 +1171,8 @@
 <script>
   // Same deployed Apps Script Web App URL used across the site.
   const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby4kzZ_2064Bnzu8CusDtfAQOIFl3ZmPJtBEI0o_vocJPMnrTNeDaT6s9suE2bpmU6MeQ/exec';
+
+  const YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
 
   /* ---------- MOBILE NAV TOGGLE ---------- */
 
@@ -1040,6 +1209,21 @@
   // ---------- Session (kept in memory only - nothing persisted to disk) ----------
   let session = null; // { username, passwordHash, name, section, role }
 
+  // ---------- Role helper (mirrors roleTypeForSection_ in api.gs) ----------
+  // This only decides what's SHOWN. The Apps Script backend independently
+  // re-checks the same rule on every write, so hiding a tab here is a
+  // convenience, not the actual security boundary.
+  function roleTypeFor(section) {
+    if (YEARS.indexOf(section) !== -1) return 'class';
+    if (section === 'Engineering Club') return 'club';
+    if (section === 'General Community') return 'community';
+    return 'unknown';
+  }
+
+  function roleLabel(role) {
+    return { class: 'Class admin', club: 'Club admin', community: 'Community admin', unknown: 'Unrecognised' }[role] || 'Unrecognised';
+  }
+
   // ---------- Hash utility (for whoever manages the Admins sheet) ----------
   const hashInput = document.getElementById('hashInput');
   const hashOutput = document.getElementById('hashOutput');
@@ -1070,6 +1254,7 @@
   const workspace = document.getElementById('workspace');
   const whoName = document.getElementById('whoName');
   const whoSection = document.getElementById('whoSection');
+  const whoRoleTag = document.getElementById('whoRoleTag');
   const loginSection = document.getElementById('login-section');
 
   loginForm.addEventListener('submit', async (e) => {
@@ -1114,12 +1299,17 @@
   });
 
   function enterWorkspace() {
+    const role = roleTypeFor(session.section);
+
     whoName.textContent = session.name || session.username;
     whoSection.textContent = session.section || '';
+    whoRoleTag.textContent = roleLabel(role);
     sessionBar.style.display = 'flex';
     workspace.style.display = 'block';
     loginSection.style.display = 'none';
     document.getElementById('password').value = '';
+
+    applyRoleScoping(role);
     goToGroupsTabIfRequested();
   }
 
@@ -1132,11 +1322,137 @@
     setStatus(loginStatus, '', '');
   });
 
+  // ---------- Role-based tab visibility + form scoping ----------
+
+  function applyRoleScoping(role) {
+    const roleEmptyState = document.getElementById('roleEmptyState');
+
+    if (role === 'unknown') {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.style.display = 'none');
+      document.querySelector('.tab-strip').style.display = 'none';
+      roleEmptyState.style.display = 'block';
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      return;
+    }
+
+    roleEmptyState.style.display = 'none';
+    document.querySelector('.tab-strip').style.display = 'flex';
+
+    let firstVisiblePanel = null;
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      const allowedRoles = (btn.dataset.roles || '').split(',');
+      const visible = allowedRoles.indexOf(role) !== -1;
+      btn.style.display = visible ? '' : 'none';
+      if (visible && !firstVisiblePanel) firstVisiblePanel = btn.dataset.panel;
+    });
+
+    if (firstVisiblePanel) activateTab(firstVisiblePanel);
+
+    lockYearFields(role);
+    setupEventsAudience(role);
+    setupGroupsYearField(role);
+  }
+
+  // Class admins get "Year of Study" auto-filled and locked to their own
+  // section on every scoped form; a hidden input carries the value since
+  // disabled selects aren't included in FormData. Community admins keep
+  // a free, required select. (Club admins never see these forms at all.)
+  function lockYearFields(role) {
+    document.querySelectorAll('[data-year-field]').forEach(wrap => {
+      const sel = wrap.querySelector('select[name="Year of Study"]');
+      const existingHidden = wrap.querySelector('input[type="hidden"][data-locked-year]');
+      if (existingHidden) existingHidden.remove();
+      if (!sel) return;
+
+      sel.style.display = '';
+      sel.disabled = false;
+
+      if (role === 'class') {
+        sel.value = session.section;
+        sel.disabled = true;
+        sel.style.display = 'none';
+
+        const note = wrap.querySelector('.locked-note') || document.createElement('p');
+        note.className = 'locked-note';
+        note.textContent = session.section + ' (locked to your section)';
+        if (!wrap.querySelector('.locked-note')) wrap.appendChild(note);
+
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'Year of Study';
+        hidden.value = session.section;
+        hidden.setAttribute('data-locked-year', '1');
+        wrap.appendChild(hidden);
+      } else {
+        const note = wrap.querySelector('.locked-note');
+        if (note) note.remove();
+      }
+    });
+  }
+
+  // Events "Audience" field: locked text for class/club admins (with a
+  // hidden input carrying the forced value — the server re-checks this
+  // anyway), a free select including "All Years" for the community admin.
+  function setupEventsAudience(role) {
+    const wrap = document.querySelector('#eventsAudienceRow .field-body');
+    const label = wrap.querySelector('label');
+    Array.from(wrap.children).forEach(child => {
+      if (child !== label) child.remove();
+    });
+
+    if (role === 'class') {
+      const note = document.createElement('p');
+      note.className = 'locked-note';
+      note.textContent = session.section + ' only (locked to your section)';
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = 'yearOfStudy';
+      hidden.value = session.section;
+      wrap.appendChild(note);
+      wrap.appendChild(hidden);
+    } else if (role === 'club') {
+      const note = document.createElement('p');
+      note.className = 'locked-note';
+      note.textContent = 'Engineering Club members (locked)';
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = 'yearOfStudy';
+      hidden.value = 'Engineering Club';
+      wrap.appendChild(note);
+      wrap.appendChild(hidden);
+    } else if (role === 'community') {
+      const sel = document.createElement('select');
+      sel.name = 'yearOfStudy';
+      sel.required = true;
+      ['All Years', ...YEARS, 'Engineering Club'].forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt;
+        o.textContent = opt;
+        sel.appendChild(o);
+      });
+      wrap.appendChild(sel);
+    }
+  }
+
+  // Groups sheet always needs a class year. Class admins use their own
+  // section automatically; the community admin must pick one explicitly.
+  function setupGroupsYearField(role) {
+    const row = document.getElementById('groupsYearRow');
+    const sel = document.getElementById('groupsTargetYear');
+    if (role === 'community') {
+      row.style.display = '';
+      sel.required = true;
+    } else {
+      row.style.display = 'none';
+      sel.required = false;
+    }
+  }
+
   // ---------- Tabs ----------
   function activateTab(panelId) {
     const btn = document.querySelector('.tab-btn[data-panel="' + panelId + '"]');
     const panel = document.getElementById(panelId);
-    if (!btn || !panel) return;
+    if (!btn || !panel || btn.style.display === 'none') return;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -1149,20 +1465,27 @@
 
   // ---------- "Set up groups" shortcut link (admin.html#groups) ----------
   // Works two ways: clicking the hero link while already signed in jumps
-  // straight to the Groups tab; visiting admin.html#groups directly opens
-  // the Groups tab automatically as soon as the admin signs in.
+  // straight to the Groups tab (if visible for this role); visiting
+  // admin.html#groups directly opens the Groups tab automatically as soon
+  // as the admin signs in.
   function goToGroupsTabIfRequested() {
     if (window.location.hash === '#groups' && workspace.style.display === 'block') {
-      activateTab('panel-groups');
-      document.getElementById('panel-groups').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const groupsBtn = document.querySelector('.tab-btn[data-panel="panel-groups"]');
+      if (groupsBtn && groupsBtn.style.display !== 'none') {
+        activateTab('panel-groups');
+        document.getElementById('panel-groups').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }
 
   document.getElementById('groupsShortcutLink').addEventListener('click', (e) => {
     if (workspace.style.display === 'block') {
       e.preventDefault();
-      activateTab('panel-groups');
-      document.getElementById('panel-groups').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const groupsBtn = document.querySelector('.tab-btn[data-panel="panel-groups"]');
+      if (groupsBtn && groupsBtn.style.display !== 'none') {
+        activateTab('panel-groups');
+        document.getElementById('panel-groups').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
     // If not signed in yet, let the anchor jump to the login form as normal;
     // goToGroupsTabIfRequested() will pick it up right after sign-in.
@@ -1172,9 +1495,11 @@
 
   // ---------- Data-entry forms ----------
   // Each form posts straight to the Apps Script Web App, which appends a
-  // row to the matching Google Sheet (Class Timetables, Exam Timetables,
-  // CAT Timetables, Class Personnel, or Class Sports) — this is how admins
-  // edit the sheet from the website, no need to open Sheets directly.
+  // row to the matching Google Sheet — this is how admins edit the sheet
+  // from the website, no need to open Sheets directly. The backend
+  // independently re-checks role/section scoping on every one of these
+  // (see addRowIfAuthorized_ and addEvent_ in api.gs), so a locked field
+  // here is a UX nicety, not the actual enforcement.
   document.querySelectorAll('.data-form').forEach(form => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1199,8 +1524,10 @@
         const result = await res.json();
 
         if (result.success) {
-          setStatus(statusEl, 'Entry added.', 'ok');
+          setStatus(statusEl, result.message || 'Saved.', 'ok');
           form.reset();
+          // Re-apply locked fields after reset wipes them back to default.
+          if (session) applyRoleScoping(roleTypeFor(session.section));
         } else {
           setStatus(statusEl, result.error || 'Something went wrong.', 'err');
         }
@@ -1212,7 +1539,48 @@
     });
   });
 
-  // ---------- Groups (create groups for the admin's own class, email leaders) ----------
+  // ---------- Club settings (logo) ----------
+  const clubSettingsForm = document.getElementById('clubSettingsForm');
+  clubSettingsForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!session) return;
+
+    const statusEl = document.getElementById('status-club');
+    const logoUrl = document.getElementById('clubLogoUrl').value.trim();
+    const submitBtn = clubSettingsForm.querySelector('button.commit');
+
+    if (!logoUrl) {
+      setStatus(statusEl, 'Enter a logo URL first.', 'err');
+      return;
+    }
+
+    setStatus(statusEl, 'Updating…', '');
+    submitBtn.disabled = true;
+
+    try {
+      const res = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'updateClubLogo',
+          data: { username: session.username, passwordHash: session.passwordHash, logoUrl }
+        })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        setStatus(statusEl, result.message || 'Club logo updated.', 'ok');
+        clubSettingsForm.reset();
+      } else {
+        setStatus(statusEl, result.error || 'Something went wrong.', 'err');
+      }
+    } catch (err) {
+      setStatus(statusEl, 'Network error — check the Web App URL is set.', 'err');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // ---------- Groups (create groups, email leaders) ----------
   let groupRowCount = 0;
   const groupRowsContainer = document.getElementById('groupRows');
   const addGroupRowBtn = document.getElementById('addGroupRowBtn');
@@ -1244,6 +1612,13 @@
 
     const statusEl = document.getElementById('status-groups');
     const maxGroupSize = document.getElementById('maxGroupSize').value;
+    const role = roleTypeFor(session.section);
+    const targetYear = document.getElementById('groupsTargetYear').value;
+
+    if (role === 'community' && !targetYear) {
+      setStatus(statusEl, 'Select which class year these groups belong to.', 'err');
+      return;
+    }
 
     const groups = Array.from(groupRowsContainer.children).map(card => ({
       groupName: card.querySelector('.group-name').value.trim(),
@@ -1270,6 +1645,7 @@
             username: session.username,
             passwordHash: session.passwordHash,
             maxGroupSize,
+            targetYear: role === 'community' ? targetYear : undefined,
             groups
           }
         })
@@ -1279,7 +1655,7 @@
       if (result.success) {
         setStatus(statusEl, result.message || 'Groups created.', 'ok');
         showGroupLinks(result.groups || []);
-        // Reset just the leader rows, keep the max-size setting for convenience
+        // Reset just the leader rows, keep the max-size/target-year setting for convenience
         groupRowsContainer.innerHTML = '';
         groupRowCount = 0;
         addGroupRow();
