@@ -484,6 +484,7 @@
   <p class="eyebrow">Sheet 07 — Documents</p>
   <h1>Notes &amp; <em>revision papers</em></h1>
   <p class="lede">Free and paid documents by year and unit — lecture notes, past papers, cheat sheets. Filter by year, or search by title or unit. Click <strong>View</strong> to open a document right here on the site; every file listed here is public.</p>
+  <p class="lede" style="font-family: var(--font-mono); font-size: 0.78rem; color: rgba(232,238,242,0.55); margin-top: -24px;">Uploading a Google Doc, Sheet, or Form link? Set its sharing to <strong>"Anyone with the link"</strong> before pasting it in — otherwise the viewer will show a Google sign-in/request-access screen instead of the file.</p>
 
   <div class="controls">
     <div class="control-group">
@@ -757,8 +758,16 @@
     if (!link) return null;
     const s = String(link).trim();
 
+    // Google Forms — published respondent link: forms/d/e/FORM_ID/viewform
+    let m = s.match(/docs\.google\.com\/forms\/d\/e\/([a-zA-Z0-9_-]+)/);
+    if (m) return `https://docs.google.com/forms/d/e/${m[1]}/viewform?embedded=true`;
+
+    // Google Forms — editor-style link without /e/: forms/d/FORM_ID/...
+    m = s.match(/docs\.google\.com\/forms\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return `https://docs.google.com/forms/d/${m[1]}/viewform?embedded=true`;
+
     // drive.google.com/file/d/FILE_ID/...
-    let m = s.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    m = s.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
     if (m) return `https://drive.google.com/file/d/${m[1]}/preview`;
 
     // drive.google.com/open?id=FILE_ID  or  ...&id=FILE_ID
