@@ -40,6 +40,23 @@
 
   a { color: inherit; }
 
+  /* ---------- ACTIVATION BANNER ---------- */
+
+  #activationBanner {
+    display: none;
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    text-align: center;
+    padding: 10px 20px;
+  }
+  #activationBanner a {
+    text-decoration: underline;
+    font-weight: 600;
+  }
+
   /* ---------- NAV ---------- */
 
   header {
@@ -405,6 +422,7 @@
 
   .lookup-result .status-ok { color: var(--ok); }
   .lookup-result .status-err { color: var(--err); }
+  .lookup-result .status-warn { color: var(--copper); }
 
   .lookup-card {
     display: grid;
@@ -430,6 +448,14 @@
     font-family: var(--font-display);
     font-weight: 600;
     color: var(--blueprint-line);
+  }
+
+  .lookup-card .activate-link {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--copper);
+    text-decoration: underline;
+    font-size: 0.8rem;
   }
 
   /* ---------- COMMUNITY HINTS (events preview etc.) ---------- */
@@ -585,6 +611,11 @@
 </head>
 <body>
 
+<div id="activationBanner">
+  Free access ends 7 days after registration.
+  <a href="activate.html">Check your activation status &rarr;</a>
+</div>
+
 <header id="siteHeader">
   <a href="#top" class="brandmark">
     <span class="glyph"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s" alt="Chuka University logo"></span>
@@ -596,6 +627,7 @@
   <nav id="siteNav">
     <ul>
       <li><a href="#register">Register</a></li>
+      <li><a href="activate.html">Activate</a></li>
       <li><a href="timetables.html">Timetables</a></li>
        <li><a href="join-group.html">Groups</a></li>
       <li><a href="club.html">Club</a></li>
@@ -617,7 +649,8 @@
     <p class="lede">
       Register once and you're on the roll for your year — timetables, class
       leadership, sports fixtures, club activity and the shop all read from
-      this same sheet.
+      this same sheet. Free for your first 7 days, then a one-time KES 100
+      activation fee keeps your account active.
     </p>
 
     <div class="title-block">
@@ -654,6 +687,7 @@
           <li>Your registration number must match your student ID exactly — it's how your class admin finds you.</li>
           <li>One entry per student. Resubmitting with the same registration number will be rejected.</li>
           <li>A profile photo link is optional — it's used on personnel/sports pages if you're ever listed there.</li>
+          <li>You get 7 days of free access. After that, a one-time KES 100 activation fee (M-Pesa or card) keeps your account active — see the <a href="activate.html" style="color: var(--copper);">Activate page</a>.</li>
           <li>Want to join the Engineering Club too? That's a separate, short sign-up on the <a href="club.html" style="color: var(--copper);">Club page</a>.</li>
         </ul>
       </div>
@@ -783,6 +817,11 @@
         <h3>Documents</h3>
         <p>Free and paid notes by unit and year.</p>
       </a>
+      <a class="link-card" href="activate.html">
+        <span class="sheet-no">08</span>
+        <h3>Activate</h3>
+        <p>Check your status and pay the KES 100 activation fee.</p>
+      </a>
     </div>
   </section>
 
@@ -859,6 +898,7 @@
 
       if (result.success) {
         setStatus('Registered. Welcome to the community.', 'ok');
+        localStorage.setItem('cec_regnumber', data.regNumber);
         form.reset();
       } else {
         setStatus(result.error || 'Something went wrong.', 'err');
@@ -912,14 +952,23 @@
         ? '<img src="' + escapeHtml(match.imageUrl) + '" alt="">'
         : '<span class="placeholder-avatar">' + escapeHtml((match.fullName || '?').charAt(0).toUpperCase()) + '</span>';
 
+      const paid = String(match.paymentStatus || '').trim() === 'Paid';
+      const paymentLine = paid
+        ? '<div class="status-ok">Activated</div>'
+        : '<div class="status-warn">Not yet activated — <a class="activate-link" href="activate.html?reg=' + encodeURIComponent(match.regNumber || '') + '">check your status &amp; pay</a></div>';
+
       lookupResult.innerHTML =
         '<div class="lookup-card">' +
           avatar +
           '<div>' +
             '<div class="status-ok">Registered — ' + escapeHtml(match.status || 'Active') + '</div>' +
             '<div>' + escapeHtml(match.fullName || '') + ' &middot; ' + escapeHtml(match.year || '') + ' &middot; ' + escapeHtml(match.regNumber || '') + '</div>' +
+            paymentLine +
           '</div>' +
         '</div>';
+
+      localStorage.setItem('cec_regnumber', match.regNumber || '');
+      updateActivationBanner();
     } catch (err) {
       lookupResult.innerHTML = '<span class="status-err">Network error — try again in a moment.</span>';
     } finally {
@@ -931,6 +980,31 @@
   lookupInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); runLookup(); }
   });
+
+  /* ---------- ACTIVATION BANNER ---------- */
+  // Shows a lightweight top banner if this browser's remembered student
+  // still needs to activate. Doesn't block anything on this page — the
+  // hard gate lives in activation-gate.js on Shop/Documents/Groups/Events.
+
+  async function updateActivationBanner() {
+    const regNumber = localStorage.getItem('cec_regnumber');
+    const banner = document.getElementById('activationBanner');
+    if (!regNumber) return;
+
+    try {
+      const res = await fetch(WEB_APP_URL + '?action=checkActivation&regNumber=' + encodeURIComponent(regNumber));
+      const result = await res.json();
+      if (!result.success || !result.data || !result.data.found || result.data.paid) return;
+
+      const info = result.data;
+      banner.innerHTML = info.mustPayNow
+        ? 'Your free access has ended. <a href="activate.html">Activate now (KES ' + info.feeKes + ') &rarr;</a>'
+        : info.daysLeft + ' day(s) of free access left. <a href="activate.html">Activate early &rarr;</a>';
+      banner.style.display = 'block';
+    } catch (err) {
+      // Silent — banner is a courtesy, not critical.
+    }
+  }
 
   /* ---------- COMMUNITY HINTS (events preview) ---------- */
 
@@ -979,6 +1053,7 @@
   }
 
   loadEventHints();
+  updateActivationBanner();
 </script>
 
 </body>
