@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Timetables — Chuka Engineering Community</title>
+<link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -70,13 +71,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--copper);
-    transform: rotate(45deg);
+    overflow: hidden;
+    background: var(--paper);
     flex-shrink: 0;
   }
-  .brandmark .glyph span { transform: rotate(-45deg); }
+  .brandmark .glyph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 
   nav ul {
     list-style: none;
@@ -97,6 +101,41 @@
   }
   nav a:hover, nav a:focus-visible { opacity: 1; border-color: var(--copper); }
   nav a.current { opacity: 1; border-color: var(--copper); color: var(--copper); }
+
+  /* Hamburger toggle button — hidden on wide screens */
+  .nav-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid rgba(232,238,242,0.4);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .nav-toggle .bars {
+    position: relative;
+    width: 18px;
+    height: 12px;
+  }
+  .nav-toggle .bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--paper);
+    transition: transform 0.2s ease, opacity 0.2s ease, top 0.2s ease;
+  }
+  .nav-toggle .bars span:nth-child(1) { top: 0; }
+  .nav-toggle .bars span:nth-child(2) { top: 5px; }
+  .nav-toggle .bars span:nth-child(3) { top: 10px; }
+
+  header.nav-open .nav-toggle .bars span:nth-child(1) { top: 5px; transform: rotate(45deg); }
+  header.nav-open .nav-toggle .bars span:nth-child(2) { opacity: 0; }
+  header.nav-open .nav-toggle .bars span:nth-child(3) { top: 5px; transform: rotate(-45deg); }
 
   /* ---------- HERO ---------- */
   .hero {
@@ -200,6 +239,7 @@
     background: rgba(232,238,242,0.25);
     border: 1px solid rgba(232,238,242,0.25);
     margin-left: auto;
+    flex-wrap: wrap;
   }
 
   .view-toggle button {
@@ -259,6 +299,12 @@
     color: var(--copper);
   }
 
+  .entry-time {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--blueprint-line);
+  }
+
   .empty-state, .loading-state, .error-state {
     padding: 48px 20px;
     text-align: center;
@@ -291,23 +337,58 @@
   }
 
   @media (max-width: 820px) {
-    nav ul { display: none; }
+    .nav-toggle { display: flex; }
+
+    nav {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(16,36,62,0.98);
+      border-bottom: 1px solid rgba(232,238,242,0.15);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    header.nav-open nav { max-height: 480px; }
+
+    nav ul {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 8px 32px 20px;
+    }
+
+    nav ul li { border-top: 1px solid rgba(232,238,242,0.1); }
+    nav ul li:first-child { border-top: none; }
+
+    nav a {
+      display: block;
+      padding: 14px 0;
+      border-bottom: none;
+    }
+
     .view-toggle { margin-left: 0; }
   }
 </style>
 </head>
 <body>
 
-<header>
+<header id="siteHeader">
   <a href="index.html" class="brandmark">
-    <span class="glyph"><span>CE</span></span>
+    <span class="glyph"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s" alt="Chuka University logo"></span>
     CHUKA ENGINEERING COMMUNITY
   </a>
-  <nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="siteNav">
+    <span class="bars"><span></span><span></span><span></span></span>
+  </button>
+  <nav id="siteNav">
     <ul>
       <li><a href="index.html#register">Register</a></li>
       <li><a href="timetables.html" class="current">Timetables</a></li>
       <li><a href="club.html">Club</a></li>
+      <li><a href="index.html#hints">Events</a></li>
       <li><a href="personnel.html">Personnel</a></li>
       <li><a href="sports.html">Sports</a></li>
       <li><a href="shop.html">Shop</a></li>
@@ -320,10 +401,11 @@
 <main>
   <div class="hero">
     <p class="eyebrow">Sheet 02 of 06</p>
-    <h1>Class &amp; exam timetables.</h1>
+    <h1>Class, CAT &amp; exam timetables.</h1>
     <p class="lede">
-      Pick your year to see this week's class schedule or the upcoming exam
-      slate. Class admins keep these current — see something wrong? Flag it
+      Pick your year to see this week's class schedule, upcoming CATs, or the
+      exam slate — including the venue entrance/reporting time for CATs and
+      exams. Class admins keep these current — see something wrong? Flag it
       to your class rep on the <a href="personnel.html" style="color: var(--copper);">Personnel</a> page.
     </p>
   </div>
@@ -349,6 +431,7 @@
 
       <div class="view-toggle" role="tablist" aria-label="Timetable type">
         <button type="button" id="tabClass" class="active" role="tab" aria-selected="true">Class timetable</button>
+        <button type="button" id="tabCat" role="tab" aria-selected="false">CATs timetable</button>
         <button type="button" id="tabExam" role="tab" aria-selected="false">Exam timetable</button>
       </div>
     </div>
@@ -372,16 +455,44 @@
 
 <script>
   // Same deployed Apps Script Web App URL used across the site.
-  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxB_gZomEYQteBMWdE5HNgfutm04QTgu7SBaG9vYHqHzt4meKJHrSRQIDj8WqGDbXPBiw/exec';
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwodcPKOSsCcZ46wzzSOch2Q-cHvNZMr2nJIp-w9lV66hJXHVuhhK8DVFDG8rPrgJzkcQ/exec';
+
+  /* ---------- MOBILE NAV TOGGLE ---------- */
+
+  const siteHeader = document.getElementById('siteHeader');
+  const navToggle = document.getElementById('navToggle');
+  const siteNav = document.getElementById('siteNav');
+
+  navToggle.addEventListener('click', () => {
+    const isOpen = siteHeader.classList.toggle('nav-open');
+    navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  siteNav.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A') {
+      siteHeader.classList.remove('nav-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!siteHeader.contains(e.target)) {
+      siteHeader.classList.remove('nav-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  /* ---------- TIMETABLE LOOKUP ---------- */
 
   const yearSelect = document.getElementById('yearSelect');
   const tabClass = document.getElementById('tabClass');
+  const tabCat = document.getElementById('tabCat');
   const tabExam = document.getElementById('tabExam');
   const head = document.getElementById('timetableHead');
   const body = document.getElementById('timetableBody');
   const metaLine = document.getElementById('metaLine');
 
-  let currentView = 'class'; // 'class' | 'exam'
+  let currentView = 'class'; // 'class' | 'cat' | 'exam'
 
   const CLASS_COLUMNS = [
     { key: 'Day', label: 'Day' },
@@ -392,8 +503,11 @@
     { key: 'Venue', label: 'Venue' }
   ];
 
-  const EXAM_COLUMNS = [
-    { key: 'Exam Date', label: 'Date' },
+  // CATs and exams both carry a "Reporting Time" — the entrance time
+  // students should be at the venue by, ahead of the actual start time.
+  const CAT_COLUMNS = [
+    { key: 'CAT Date', label: 'Date' },
+    { key: 'Reporting Time', label: 'Reporting Time' },
     { key: 'Time Slot', label: 'Time' },
     { key: 'Unit Name', label: 'Unit' },
     { key: 'Unit Code', label: 'Code' },
@@ -401,15 +515,34 @@
     { key: 'Invigilator', label: 'Invigilator' }
   ];
 
+  const EXAM_COLUMNS = [
+    { key: 'Exam Date', label: 'Date' },
+    { key: 'Reporting Time', label: 'Reporting Time' },
+    { key: 'Time Slot', label: 'Time' },
+    { key: 'Unit Name', label: 'Unit' },
+    { key: 'Unit Code', label: 'Code' },
+    { key: 'Venue', label: 'Venue' },
+    { key: 'Invigilator', label: 'Invigilator' }
+  ];
+
+  const VIEW_CONFIG = {
+    class: { columns: CLASS_COLUMNS, action: 'getTimetable', label: 'class' },
+    cat: { columns: CAT_COLUMNS, action: 'getCatTimetable', label: 'CAT' },
+    exam: { columns: EXAM_COLUMNS, action: 'getExamTimetable', label: 'exam' }
+  };
+
   tabClass.addEventListener('click', () => switchView('class'));
+  tabCat.addEventListener('click', () => switchView('cat'));
   tabExam.addEventListener('click', () => switchView('exam'));
   yearSelect.addEventListener('change', load);
 
   function switchView(view) {
     currentView = view;
     tabClass.classList.toggle('active', view === 'class');
+    tabCat.classList.toggle('active', view === 'cat');
     tabExam.classList.toggle('active', view === 'exam');
     tabClass.setAttribute('aria-selected', view === 'class');
+    tabCat.setAttribute('aria-selected', view === 'cat');
     tabExam.setAttribute('aria-selected', view === 'exam');
     load();
   }
@@ -419,13 +552,13 @@
   }
 
   function renderState(message, type) {
-    const colspan = (currentView === 'class' ? CLASS_COLUMNS : EXAM_COLUMNS).length;
+    const colspan = VIEW_CONFIG[currentView].columns.length;
     body.innerHTML = `<tr><td colspan="${colspan}"><div class="${type}">${message}</div></td></tr>`;
   }
 
   async function load() {
     const year = yearSelect.value;
-    const columns = currentView === 'class' ? CLASS_COLUMNS : EXAM_COLUMNS;
+    const { columns, action, label } = VIEW_CONFIG[currentView];
     renderHead(columns);
 
     if (!year) {
@@ -443,7 +576,6 @@
     renderState('Loading…', 'loading-state');
     metaLine.textContent = '';
 
-    const action = currentView === 'class' ? 'getTimetable' : 'getExamTimetable';
     const url = `${WEB_APP_URL}?action=${action}&year=${encodeURIComponent(year)}`;
 
     try {
@@ -457,15 +589,16 @@
 
       const rows = result.data || [];
       if (!rows.length) {
-        renderState(`No ${currentView === 'class' ? 'class' : 'exam'} timetable entries for ${year} yet.`, 'empty-state');
+        renderState(`No ${label} timetable entries for ${year} yet.`, 'empty-state');
         return;
       }
 
-      // Sort a sensible default order for class view: Day then Time Slot.
       body.innerHTML = rows.map(r => {
         return '<tr>' + columns.map(c => {
           const val = r[c.key] ?? '';
-          const cls = c.key === 'Unit Code' ? ' class="unit-code"' : '';
+          let cls = '';
+          if (c.key === 'Unit Code') cls = ' class="unit-code"';
+          else if (c.key === 'Reporting Time') cls = ' class="entry-time"';
           return `<td${cls}>${escapeHtml(String(val))}</td>`;
         }).join('') + '</tr>';
       }).join('');
