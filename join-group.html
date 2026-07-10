@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join a Group — Chuka Engineering Community</title>
+<link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blueprint-navy: #10243E;
+    --blueprint-blue: #2E6F9E;
+    --blueprint-line: #4C86AE;
+    --paper: #E8EEF2;
+    --copper: #C97B3D;
+    --ok: #3F8F5F;
+    --err: #B4453A;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background:
+      repeating-linear-gradient(0deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, rgba(76,134,174,0.14) 0px, rgba(76,134,174,0.14) 1px, transparent 1px, transparent 32px),
+      var(--blueprint-navy);
+    color: var(--paper);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 56px 20px;
+  }
+
+  a { color: inherit; }
+
+  .card-wrap { width: 100%; max-width: 560px; }
+
+  .brandmark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    margin-bottom: 32px;
+  }
+  .brandmark .glyph {
+    width: 30px;
+    height: 30px;
+    border: 2px solid var(--copper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .brandmark .glyph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    line-height: 1.15;
+    margin-bottom: 24px;
+  }
+
+  .info-card {
+    background: rgba(232,238,242,0.04);
+    border: 1px solid rgba(232,238,242,0.3);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(232,238,242,0.15);
+    font-size: 0.92rem;
+  }
+  .info-row:first-child { border-top: none; padding-top: 0; }
+  .info-row .label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+  }
+  .info-row .value { font-weight: 500; text-align: right; }
+  .info-row .value.copper { color: var(--copper); }
+
+  form.spec-sheet {
+    background: rgba(232,238,242,0.04);
+    border: 1px solid rgba(232,238,242,0.3);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    border-top: 1px solid rgba(232,238,242,0.25);
+  }
+  .field-row:first-child { border-top: none; }
+
+  .field-index {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--blueprint-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid rgba(232,238,242,0.25);
+  }
+
+  .field-body { padding: 16px 20px; }
+
+  .field-body label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blueprint-line);
+    margin-bottom: 8px;
+  }
+
+  .field-body input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232,238,242,0.35);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 6px 2px;
+    outline: none;
+  }
+  .field-body input:focus { border-color: var(--copper); }
+
+  .submit-row {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  button.commit {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--copper);
+    color: var(--blueprint-navy);
+    border: none;
+    padding: 14px 28px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  button.commit:hover { filter: brightness(1.1); }
+  button.commit:active { transform: translateY(1px); }
+  button.commit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  #form-status {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    min-height: 1.2em;
+  }
+  #form-status[data-state="ok"] { color: var(--ok); }
+  #form-status[data-state="err"] { color: var(--err); }
+
+  .state-message {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    padding: 20px;
+    border: 1px dashed rgba(232,238,242,0.35);
+  }
+  .state-message.ok { color: var(--ok); border-color: rgba(63,143,95,0.4); }
+  .state-message.err { color: var(--err); border-color: rgba(180,69,58,0.4); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="card-wrap">
+  <a href="index.html" class="brandmark">
+    <span class="glyph"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-loVvg1gjtGEf2OPgvvyiyBdGpVH40iK-GTboGl7sZg&s" alt="Chuka University logo"></span>
+    CHUKA ENGINEERING COMMUNITY
+  </a>
+
+  <p class="eyebrow">Group invite</p>
+  <h1 id="pageTitle">Join your group.</h1>
+
+  <div id="loadingState" class="state-message">Loading group details…</div>
+
+  <div id="notFoundState" class="state-message err hidden">
+    This link isn't valid, or the group has been closed. Ask your group leader for a fresh link.
+  </div>
+
+  <div id="fullState" class="state-message err hidden">
+    This group is already full. Check with your group leader.
+  </div>
+
+  <div id="joinedState" class="state-message ok hidden"></div>
+
+  <div id="groupContent" class="hidden">
+    <div class="info-card">
+      <div class="info-row">
+        <span class="label">Group</span>
+        <span class="value copper" id="infoGroupName"></span>
+      </div>
+      <div class="info-row">
+        <span class="label">Class</span>
+        <span class="value" id="infoYear"></span>
+      </div>
+      <div class="info-row">
+        <span class="label">Leader</span>
+        <span class="value" id="infoLeader"></span>
+      </div>
+      <div class="info-row">
+        <span class="label">Spots left</span>
+        <span class="value" id="infoSpots"></span>
+      </div>
+    </div>
+
+    <form class="spec-sheet" id="joinForm" novalidate>
+      <div class="field-row">
+        <div class="field-index">01</div>
+        <div class="field-body">
+          <label for="fullName">Full name</label>
+          <input type="text" id="fullName" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-index">02</div>
+        <div class="field-body">
+          <label for="regNumber">Registration number</label>
+          <input type="text" id="regNumber" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-index">03</div>
+        <div class="field-body">
+          <label for="email">Email</label>
+          <input type="email" id="email" required>
+        </div>
+      </div>
+      <div class="submit-row">
+        <span id="form-status" role="status" aria-live="polite"></span>
+        <button type="submit" class="commit" id="joinBtn">Join group</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Same deployed Apps Script Web App URL used across the site.
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxB_gZomEYQteBMWdE5HNgfutm04QTgu7SBaG9vYHqHzt4meKJHrSRQIDj8WqGDbXPBiw/exec';
+
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+
+  const loadingState = document.getElementById('loadingState');
+  const notFoundState = document.getElementById('notFoundState');
+  const fullState = document.getElementById('fullState');
+  const joinedState = document.getElementById('joinedState');
+  const groupContent = document.getElementById('groupContent');
+
+  function showOnly(el) {
+    [loadingState, notFoundState, fullState, joinedState, groupContent].forEach(e => e.classList.add('hidden'));
+    el.classList.remove('hidden');
+  }
+
+  async function loadGroup() {
+    if (!token) {
+      showOnly(notFoundState);
+      return;
+    }
+
+    try {
+      const res = await fetch(WEB_APP_URL + '?action=getGroupInfo&token=' + encodeURIComponent(token));
+      const result = await res.json();
+
+      if (!result.success || !result.data || !result.data.found) {
+        showOnly(notFoundState);
+        return;
+      }
+
+      const info = result.data;
+
+      if (info.status !== 'Active' || info.spotsLeft <= 0) {
+        showOnly(fullState);
+        return;
+      }
+
+      document.getElementById('infoGroupName').textContent = info.groupName;
+      document.getElementById('infoYear').textContent = info.year;
+      document.getElementById('infoLeader').textContent = info.leaderName;
+      document.getElementById('infoSpots').textContent = info.spotsLeft + ' of ' + info.maxSize;
+
+      showOnly(groupContent);
+    } catch (err) {
+      showOnly(notFoundState);
+    }
+  }
+
+  loadGroup();
+
+  document.getElementById('joinForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const statusEl = document.getElementById('form-status');
+    const joinBtn = document.getElementById('joinBtn');
+
+    const data = {
+      token,
+      fullName: document.getElementById('fullName').value.trim(),
+      regNumber: document.getElementById('regNumber').value.trim(),
+      email: document.getElementById('email').value.trim()
+    };
+
+    if (!data.fullName || !data.regNumber || !data.email) {
+      statusEl.textContent = 'Please fill in all fields.';
+      statusEl.setAttribute('data-state', 'err');
+      return;
+    }
+
+    statusEl.textContent = 'Joining…';
+    statusEl.removeAttribute('data-state');
+    joinBtn.disabled = true;
+
+    try {
+      const res = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'joinGroup', data })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        joinedState.textContent = result.message || 'You joined the group!';
+        showOnly(joinedState);
+      } else {
+        statusEl.textContent = result.error || 'Something went wrong.';
+        statusEl.setAttribute('data-state', 'err');
+      }
+    } catch (err) {
+      statusEl.textContent = 'Network error — please try again.';
+      statusEl.setAttribute('data-state', 'err');
+    } finally {
+      joinBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
